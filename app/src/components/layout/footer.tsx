@@ -6,42 +6,54 @@ export function Footer() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-semibold mb-3">PTSA+</h3>
+            <h3 className="font-semibold mb-3">Our PTSA</h3>
             <p className="text-sm text-muted-foreground">
-              Modern platform for Parent-Teacher-Student Associations
+              Supporting our school community since 1985
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              501(c)(3) Non-Profit Organization
             </p>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-3">Product</h4>
+            <h4 className="font-semibold mb-3">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/features" className="hover:text-primary">Features</Link></li>
-              <li><Link href="/pricing" className="hover:text-primary">Pricing</Link></li>
-              <li><Link href="/security" className="hover:text-primary">Security</Link></li>
+              <li><Link href="/about" className="hover:text-primary">About Us</Link></li>
+              <li><Link href="/members" className="hover:text-primary">Membership</Link></li>
+              <li><Link href="/events" className="hover:text-primary">Events</Link></li>
+              <li><Link href="/committees" className="hover:text-primary">Committees</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-3">Resources</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/help" className="hover:text-primary">Help Center</Link></li>
-              <li><Link href="/guides" className="hover:text-primary">Guides</Link></li>
-              <li><Link href="/api" className="hover:text-primary">API Docs</Link></li>
+              <li><Link href="/documents" className="hover:text-primary">Documents</Link></li>
+              <li><Link href="/volunteer" className="hover:text-primary">Volunteer</Link></li>
+              <li><Link href="/donate" className="hover:text-primary">Donate</Link></li>
+              <li><Link href="/contact" className="hover:text-primary">Contact Us</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-semibold mb-3">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/privacy" className="hover:text-primary">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-primary">Terms of Service</Link></li>
-              <li><Link href="/ferpa" className="hover:text-primary">FERPA Compliance</Link></li>
-            </ul>
+            <h4 className="font-semibold mb-3">Contact</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>Email: info@ourptsa.org</p>
+              <p>Phone: (555) 123-4567</p>
+              <p>Our School Name</p>
+              <p>123 School Street</p>
+              <p>City, State 12345</p>
+            </div>
           </div>
         </div>
         
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} PTSA+. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Our PTSA. All rights reserved.</p>
+          <p className="mt-2">
+            <Link href="/privacy" className="hover:text-primary">Privacy Policy</Link>
+            {' • '}
+            <Link href="/terms" className="hover:text-primary">Terms of Use</Link>
+          </p>
         </div>
       </div>
     </footer>

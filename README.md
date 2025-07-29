@@ -1,167 +1,169 @@
-# PTSA+ Platform
+# Our PTSA Platform
 
-> Modern, AI-powered platform for Parent-Teacher-Student Associations
+> A custom-built platform for our Parent-Teacher-Student Association
 
-## 🎯 Vision
+## 🎯 Purpose
 
-PTSA+ revolutionizes how Parent-Teacher-Student Associations manage their operations, engage with communities, and support schools. We're building the platform that makes community building effortless, enabling volunteers to focus on what matters most - supporting students and schools.
+This platform provides our PTSA with a dedicated solution for managing operations, coordinating volunteers, and engaging with our school community. Built specifically for our needs, it replaces generic school website builders with a tailored system we control.
 
-## 🚀 Key Features
+## 🚀 Current Features
 
-### For PTSA Leaders
-- **Simplified Management**: Streamline operations with intelligent automation
-- **Financial Transparency**: Real-time budget tracking and reporting
-- **Volunteer Coordination**: Smart matching and scheduling
-- **Seamless Transitions**: Board handoffs without information loss
+### Phase 1 - Foundation (In Development)
+- **Member Management**: Track member families and their information
+- **Online Payments**: Process membership dues and donations via Stripe
+- **Event Calendar**: List school events and volunteer opportunities  
+- **User Accounts**: Secure login for members with role-based access
+- **Basic Admin Tools**: Board members can manage content
 
-### For Parents
-- **One-Click Everything**: Payments, signups, and communication
-- **Mobile-First**: Full functionality on any device
-- **Personalized Experience**: See only what matters to your family
-- **Multi-Language Support**: Starting with English and Spanish
+### Phase 2 - Enhanced Operations (Planned)
+- **Committee Management**: Organize committees and track participation
+- **Volunteer Hours**: Log and report volunteer contributions
+- **Document Library**: Store meeting minutes, bylaws, and guides
+- **Email Communications**: Send newsletters and announcements
+- **Financial Reporting**: Transparent budget and expense tracking
 
-### For Schools
-- **Unified Platform**: Coordinate with PTSA effortlessly
-- **Compliance Built-In**: FERPA, COPPA, and state requirements
-- **Reduced Burden**: Less work for office staff
-- **Better Outcomes**: Increased parent engagement
+### Phase 3 - Advanced Features (Future)
+- **Mobile Apps**: Native iOS and Android applications
+- **School Integration**: Connect with school information systems
+- **AI Assistance**: Help with content creation and tasks
+- **Advanced Analytics**: Track engagement and impact
+- **Multi-language Support**: Serve all families in our community
 
 ## 📋 Documentation
 
-Comprehensive documentation is available in the `/docs` directory:
+Project documentation is available in the `/docs` directory:
 
-- [Platform Overview](./docs/01-platform-overview.md) - Vision and differentiators
-- [Requirements Specification](./docs/02-requirements-specification.md) - Detailed requirements
-- [User Personas & Stories](./docs/03-user-personas-stories.md) - Our users and their needs
-- [Technical Architecture](./docs/05-technical-architecture.md) - System design
-- [API Design](./docs/06-api-design.md) - API specifications
-- [Security & Compliance](./docs/08-security-compliance.md) - Security measures
-- [Feature Specifications](./docs/10-feature-specifications.md) - Feature details
-- [Development Workflow](./docs/12-development-workflow.md) - How we build
-- [Migration Guide](./docs/15-migration-guide.md) - Switching to PTSA+
-- [Business Model](./docs/18-business-model.md) - Pricing and strategy
-- [MVP Features](./docs/mvp-features.md) - Initial release scope
-- [Timeline](./docs/timeline.md) - Development schedule
+- [Platform Overview](./docs/01-platform-overview.md) - Vision for our PTSA platform
+- [Future Scaling Guide](./docs/future-scaling-guide.md) - How to expand to multiple PTSAs
+- [Month 1 Development Plan](./docs/month-1-development-plan.md) - Initial development roadmap
+- [Technical Architecture](./docs/05-technical-architecture.md) - System design details
 
 ## 🛠️ Technology Stack
 
-### Frontend
-- **Framework**: Next.js 14 with TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand + React Query
-- **UI Components**: Radix UI
+### Current Stack (Simplified for Single PTSA)
+- **Frontend**: Next.js 14 with TypeScript
+- **UI Components**: shadcn/ui with Tailwind CSS v3.4
+- **Authentication**: Clerk
+- **Database**: Supabase (PostgreSQL)
+- **Payments**: Stripe
+- **Hosting**: Vercel
 
-### Backend
-- **Framework**: NestJS with TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Caching**: Redis
-- **Queue**: AWS SQS
-
-### Infrastructure
-- **Cloud**: AWS (ECS, RDS, S3, CloudFront)
-- **Monitoring**: DataDog
-- **CI/CD**: GitHub Actions
-- **IaC**: Terraform
+### Why These Choices?
+- **Next.js**: Modern React framework with great developer experience
+- **shadcn/ui**: Beautiful, accessible components we can customize
+- **Clerk**: Handles authentication complexity for us
+- **Supabase**: Managed PostgreSQL with real-time features
+- **Stripe**: Industry-standard payment processing
+- **Vercel**: Simple deployment and scaling
 
 ## 🚦 Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL 15+
-- Redis 7+
-- AWS CLI configured
+- pnpm package manager
+- Supabase account
+- Clerk account
+- Stripe account
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/ptsaplus/platform.git
-cd platform
+git clone [repository-url]
+cd ptsaplus
+
+# Navigate to app directory
+cd app
 
 # Install dependencies
-npm install
+pnpm install
 
-# Set up environment variables
+# Copy environment variables
 cp .env.example .env.local
+# Edit .env.local with your credentials
 
-# Run database migrations
-npm run db:migrate
-
-# Start development server
-npm run dev
+# Run development server
+pnpm dev
 ```
 
-### Running Tests
+### Environment Setup
 
-```bash
-# Unit tests
-npm run test
+You'll need to add these keys to `.env.local`:
+- Supabase URL and keys
+- Clerk publishable and secret keys
+- Stripe keys
+- OpenAI API key (for AI features)
 
-# Integration tests
-npm run test:integration
+## 📊 Project Status
 
-# E2E tests
-npm run test:e2e
-```
+### Completed ✅
+- Project setup and configuration
+- Database schema design (single PTSA)
+- Basic UI components and layout
+- Authentication setup
+- Core type definitions
 
-## 📅 Project Timeline
+### In Progress 🔄
+- Member registration flow
+- Payment processing integration
+- Event management system
+- Admin dashboard
 
-### Phase 1: MVP (Jan-Mar 2025)
-- ✅ Core authentication & user management
-- ✅ Payment processing
-- ✅ Event management
-- ✅ Basic communication tools
-- ✅ Member directory
+### Upcoming 📅
+- Email communications
+- Document management
+- Volunteer tracking
+- Mobile optimization
 
-### Phase 2: Enhancement (Apr-Jun 2025)
-- 🔄 AI-powered features
-- 🔄 School integrations
-- 🔄 Advanced reporting
-- 🔄 Multi-language support
+## 🔒 Security & Privacy
 
-### Phase 3: Scale (Jul-Dec 2025)
-- 📱 Native mobile apps
-- 📊 Analytics platform
-- 🏪 PTSA marketplace
-- 🌍 National expansion
+We take family data seriously:
+- FERPA compliance for student information
+- COPPA compliance for children under 13
+- Secure payment processing via Stripe
+- Role-based access control
+- Regular security updates
+
+## 💰 Costs
+
+### Estimated Monthly Costs (Single PTSA)
+- Hosting (Vercel): ~$20
+- Database (Supabase): ~$25
+- Authentication (Clerk): ~$25
+- Domain: ~$1.25 ($15/year)
+- **Total**: ~$71.25/month
+
+### Payment Processing
+- Stripe: 2.9% + $0.30 per transaction
+- Example: $15 membership = $0.74 in fees
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+This is currently a private project for our PTSA. Board members and authorized volunteers can request access to contribute.
 
-### Development Process
-1. Fork the repository
-2. Create a feature branch (`feature/amazing-feature`)
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+### For Board Members
+1. Request access to the repository
+2. Set up your development environment
+3. Work on assigned features
+4. Submit changes for review
 
-## 📊 Status
+## 📈 Future Possibilities
 
-- **Current Phase**: Planning & Documentation
-- **Target MVP**: April 2025
-- **Platform Status**: 🚧 Under Development
+While built for our PTSA, the platform architecture could support:
+- Multiple PTSAs (multi-tenant)
+- District-wide deployment
+- White-label solutions
+- SaaS offering
 
-## 🔒 Security
-
-Security is our top priority. We implement:
-- COPPA & FERPA compliance
-- PCI DSS for payments
-- SOC 2 Type II (planned)
-- Regular security audits
-
-Report security vulnerabilities to: security@ptsaplus.com
-
-## 📄 License
-
-This project is proprietary software. All rights reserved.
+See [Future Scaling Guide](./docs/future-scaling-guide.md) for details.
 
 ## 📞 Contact
 
-- **Website**: [ptsaplus.com](https://ptsaplus.com)
-- **Email**: hello@ptsaplus.com
-- **Support**: support@ptsaplus.com
+For questions about this platform:
+- **PTSA Board**: board@ourptsa.org
+- **Technical Issues**: tech@ourptsa.org
+- **General Info**: info@ourptsa.org
 
 ---
 
-*Building the future of PTSA management, one school at a time.*
+*Built by volunteers, for volunteers - making PTSA management simpler for our school community.*

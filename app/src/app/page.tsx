@@ -10,11 +10,11 @@ export default function Home() {
       <section className="py-20 text-center">
         <div className="container mx-auto px-4">
           <h1 className="text-5xl font-bold mb-6">
-            Modern PTSA Management Made Simple
+            Welcome to Our PTSA
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Streamline your Parent-Teacher-Student Association operations with our 
-            all-in-one platform designed for busy volunteers.
+            Supporting our school community through parent engagement, 
+            volunteer coordination, and fundraising initiatives.
           </p>
           
           <div className="flex gap-4 justify-center">
@@ -26,10 +26,10 @@ export default function Home() {
             
             <SignedOut>
               <SignInButton mode="modal">
-                <Button size="lg">Get Started Free</Button>
+                <Button size="lg">Join Our PTSA</Button>
               </SignInButton>
-              <Link href="/demo">
-                <Button size="lg" variant="outline">Watch Demo</Button>
+              <Link href="/events">
+                <Button size="lg" variant="outline">View Events</Button>
               </Link>
             </SignedOut>
           </div>
@@ -39,58 +39,77 @@ export default function Home() {
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">
-            Everything Your PTSA Needs
+            Get Involved
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
-                <CardTitle>Membership Management</CardTitle>
+                <CardTitle>Become a Member</CardTitle>
                 <CardDescription>
-                  Track members, collect dues, and manage roles effortlessly
+                  Join our PTSA and make a difference in our school
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
-                  <li>✓ Online membership signup</li>
-                  <li>✓ Automated payment processing</li>
-                  <li>✓ Member directory</li>
-                  <li>✓ Role-based access control</li>
+                  <li>✓ Support school programs</li>
+                  <li>✓ Vote on important decisions</li>
+                  <li>✓ Access member benefits</li>
+                  <li>✓ Connect with other parents</li>
                 </ul>
+                <div className="mt-4">
+                  <p className="font-semibold">Annual Dues:</p>
+                  <p>Individual: $15</p>
+                  <p>Family: $25</p>
+                </div>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader>
-                <CardTitle>Event Planning</CardTitle>
+                <CardTitle>Volunteer</CardTitle>
                 <CardDescription>
-                  Organize events, sell tickets, and track attendance
+                  Help make our events and programs successful
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
-                  <li>✓ Event calendar</li>
-                  <li>✓ Online ticket sales</li>
-                  <li>✓ Volunteer signup sheets</li>
-                  <li>✓ Automated reminders</li>
+                  <li>✓ Event support</li>
+                  <li>✓ Fundraising activities</li>
+                  <li>✓ Committee participation</li>
+                  <li>✓ Flexible time commitment</li>
                 </ul>
+                <div className="mt-4">
+                  <Link href="/events">
+                    <Button variant="outline" size="sm" className="w-full">
+                      View Volunteer Opportunities
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader>
-                <CardTitle>Financial Tools</CardTitle>
+                <CardTitle>Stay Connected</CardTitle>
                 <CardDescription>
-                  Manage finances with transparency and ease
+                  Keep up with PTSA news and activities
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
-                  <li>✓ Online payment collection</li>
-                  <li>✓ Financial reporting</li>
-                  <li>✓ Budget tracking</li>
-                  <li>✓ Donation management</li>
+                  <li>✓ Monthly newsletters</li>
+                  <li>✓ Event announcements</li>
+                  <li>✓ Important updates</li>
+                  <li>✓ School news</li>
                 </ul>
+                <div className="mt-4">
+                  <SignInButton mode="modal">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Sign Up for Updates
+                    </Button>
+                  </SignInButton>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -100,28 +119,28 @@ export default function Home() {
       <section className="py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">
-            Trusted by PTSAs Nationwide
+            Our Impact This Year
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Join thousands of PTSAs using our platform to save time and increase engagement
+            Together, we're making a difference in our school community
           </p>
           
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold mb-2">10,000+</div>
-              <div className="text-muted-foreground">Active Members</div>
+              <div className="text-4xl font-bold mb-2">450+</div>
+              <div className="text-muted-foreground">Member Families</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">500+</div>
-              <div className="text-muted-foreground">PTSAs</div>
+              <div className="text-4xl font-bold mb-2">$75K</div>
+              <div className="text-muted-foreground">Raised for School</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">$2M+</div>
-              <div className="text-muted-foreground">Processed</div>
+              <div className="text-4xl font-bold mb-2">2,500+</div>
+              <div className="text-muted-foreground">Volunteer Hours</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">99.9%</div>
-              <div className="text-muted-foreground">Uptime</div>
+              <div className="text-4xl font-bold mb-2">25+</div>
+              <div className="text-muted-foreground">Events Hosted</div>
             </div>
           </div>
         </div>

@@ -1,9 +1,26 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
+// Protected routes requiring authentication
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
-  '/organization(.*)',
+  '/members(.*)',
+  '/events(.*)',
+  '/committees(.*)',
+  '/documents(.*)',
+  '/settings(.*)',
   '/api/admin(.*)',
+  '/register(.*)',
+  '/payments(.*)',
+  '/api/members(.*)',
+])
+
+// Public routes accessible without authentication
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/about',
+  '/contact',
+  '/events', // List view only
+  '/api/public(.*)',
 ])
 
 export default clerkMiddleware(async (auth, request) => {
