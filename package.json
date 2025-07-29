@@ -1,0 +1,20 @@
+{
+  "name": "ptsaplus-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PTSA+ Platform - Modern PTSA management system",
+  "scripts": {
+    "dev": "cd app && pnpm dev",
+    "build": "cd app && pnpm build",
+    "start": "cd app && pnpm start",
+    "lint": "cd app && pnpm lint",
+    "type-check": "cd app && pnpm type-check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allisonwhilden/ptsaplus.git"
+  },
+  "keywords": ["ptsa", "school", "volunteer", "management"],
+  "author": "PTSA+ Team",
+  "license": "MIT"
+}
