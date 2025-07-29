@@ -19,10 +19,20 @@ PTSA+ is a modern, AI-powered platform for Parent-Teacher-Student Associations d
 ### Risk-Based Development
 Prioritize validation over complete implementation:
 1. **Payment Processing**: Validate Stripe integration and compliance first
+   - Risk checkpoint: Can process test payment successfully?
+   - Agent: Consult `payment-auditor` before proceeding
 2. **User Experience**: Ensure non-technical volunteers can use the platform
+   - Risk checkpoint: Does feature pass 5-minute test?
+   - Agent: Consult `volunteer-advocate` for validation
 3. **Data Privacy**: Prove FERPA/COPPA compliance approach works
+   - Risk checkpoint: Are consent flows implemented?
+   - Agent: Consult `privacy-guardian` for compliance
 4. **AI Costs**: Confirm costs stay under $0.10/user/month
+   - Risk checkpoint: Is caching implemented? Cost projections verified?
+   - Agent: Consult `ai-economist` for optimization
 5. Build minimal prototypes to test assumptions before full implementation
+
+**IMPORTANT**: Each risk must be validated with appropriate agent consultation before moving to full implementation.
 
 ### Documentation-First Approach
 Before implementing any feature:
@@ -47,6 +57,77 @@ When implementing AI features:
 - Provide human review options for critical content
 - Monitor usage to prevent cost overruns
 - Use AI to reduce volunteer workload, not add complexity
+
+## Specialized Agents Available
+
+The following specialized agents are configured to assist with PTSA+ development. Use them proactively:
+
+### privacy-guardian
+- **When to use**: Implementing features that handle student/family data, reviewing data models, creating consent flows
+- **Examples**: User registration, grade storage, family contact info, FERPA compliance checks
+
+### payment-auditor
+- **When to use**: Any code touching payment processing, Stripe integration, financial transactions
+- **Examples**: Membership dues collection, fundraising features, payment webhooks
+
+### ai-economist
+- **When to use**: Implementing AI features, OpenAI API usage, designing caching strategies
+- **Examples**: Newsletter generation, meeting summaries, monitoring AI costs
+
+### volunteer-advocate
+- **When to use**: Designing user flows, creating documentation, reviewing UX decisions
+- **Examples**: Registration flow design, help documentation, 5-minute test validation
+
+### arch-reviewer
+- **When to use**: Creating new modules, planning service boundaries, architectural decisions
+- **Examples**: New feature modules, service extraction planning, modular monolith patterns
+
+### perf-optimizer
+- **When to use**: Analyzing performance, mobile optimization, database query reviews
+- **Examples**: Slow page loads, bundle size optimization, handling 10,000 concurrent users
+
+### test-enforcer
+- **When to use**: After implementing features, reviewing test coverage, critical path testing
+- **Examples**: Payment flow tests, privacy control tests, authentication tests
+
+### Agent Decision Priority
+When multiple agents apply, use this priority order:
+1. privacy-guardian (compliance is non-negotiable)
+2. payment-auditor (financial security critical)
+3. volunteer-advocate (user experience paramount)
+4. Others as needed
+
+### Agent Invocation Triggers
+
+Claude should proactively suggest agent consultation when detecting these patterns:
+
+#### Code Pattern Triggers
+- **privacy-guardian**: 
+  - Keywords: `user`, `student`, `child`, `family`, `email`, `phone`, `address`, `grade`
+  - Database operations on: `users`, `students`, `families`, `members` tables
+  - Creating forms that collect personal information
+  - Example: "Let me add a field for student grade level" → "I should consult privacy-guardian first"
+
+- **payment-auditor**:
+  - Keywords: `stripe`, `payment`, `charge`, `refund`, `subscription`, `invoice`
+  - Files: Any file containing `stripe` imports or payment-related API routes
+  - Example: "Implementing the membership dues form" → "I'll consult payment-auditor for this payment flow"
+
+- **ai-economist**:
+  - Keywords: `openai`, `gpt`, `completion`, `embedding`, `ai`, `llm`
+  - Imports: `import OpenAI` or similar AI libraries
+  - Example: "Creating email draft generator" → "Let me consult ai-economist for cost optimization"
+
+- **volunteer-advocate**:
+  - Creating any new user-facing component or page
+  - Modifying registration or onboarding flows
+  - Writing help text or documentation
+  - Example: "Building the event signup form" → "I'll check with volunteer-advocate for usability"
+
+#### Automatic Invocation Rules
+1. **Before Implementation**: Consult relevant agents during planning
+2. **After Implementation**: Run test-enforcer and perf-optimizer
+3. **During PR Creation**: List all agent consultations in PR description
 
 ## Data Privacy Considerations
 
@@ -83,6 +164,34 @@ This platform handles sensitive student and family data. For every feature:
 - **10 PTSAs**: End of Month 1
 - **User Activation Rate**: > 80%
 - **Support Tickets**: < 5% of users
+
+## Agent Usage Guidelines
+
+### When to Use Multiple Agents
+Some features require multiple agent perspectives:
+
+#### User Registration Flow
+1. `privacy-guardian`: COPPA compliance, data collection
+2. `volunteer-advocate`: Ease of use, time to complete
+3. `test-enforcer`: Edge case coverage
+
+#### Payment Features
+1. `payment-auditor`: Security and PCI compliance
+2. `perf-optimizer`: Transaction speed
+3. `test-enforcer`: Payment failure scenarios
+
+#### AI Features
+1. `ai-economist`: Cost optimization
+2. `privacy-guardian`: User consent flows
+3. `arch-reviewer`: Service boundaries
+
+### Agent Conflict Resolution
+When agents provide conflicting advice:
+1. **Compliance always wins** (privacy-guardian, payment-auditor)
+2. **User experience next** (volunteer-advocate)
+3. **Technical excellence last** (arch-reviewer, perf-optimizer)
+
+Document conflicts and resolutions for future reference.
 
 ## Frontend Technology Requirements
 
@@ -182,6 +291,26 @@ When you need a component not in shadcn/ui, document it like this:
 ### Decision: [To be filled after review]
 ```
 
+### Component Decision Documentation
+
+All non-shadcn/ui component decisions must be documented:
+
+1. **Location**: `/docs/decisions/components/[date]-[component-name].md`
+2. **Template**: Use the component decision template
+3. **Review**: Requires arch-reviewer agent consultation
+4. **Tracking**: Update `/docs/decisions/README.md` index
+
+Example workflow:
+```bash
+# Need a chart component not in shadcn/ui
+1. Check shadcn/ui docs ❌ Not available
+2. Create decision doc: /docs/decisions/components/2024-01-15-chart-library.md
+3. Consult arch-reviewer agent
+4. Research options (Recharts, Tremor, Victory)
+5. Document recommendation
+6. Get approval before implementing
+```
+
 ## Month 1 Technology Stack
 
 For rapid development and validation, use these managed services:
@@ -248,11 +377,37 @@ pnpm dev
 # Run all tests
 pnpm test
 
-# Run specific test
-pnpm test -- path/to/test.spec.ts
+# Run specific test suite
+pnpm test:unit        # Unit tests with Jest
+pnpm test:integration # API integration tests
+pnpm test:e2e        # End-to-end tests with Playwright
 
-# E2E tests
-pnpm test:e2e
+# Check coverage (must be >= 80%)
+pnpm test:coverage
+
+# Watch mode for development
+pnpm test:watch
+```
+
+### Testing Stack
+- **Unit Testing**: Jest + React Testing Library
+- **Integration Testing**: Jest with Supertest
+- **E2E Testing**: Playwright
+- **Coverage**: Jest built-in coverage (istanbul)
+
+### Coverage Requirements
+```json
+// jest.config.js
+{
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 80,
+      "lines": 80,
+      "statements": 80
+    }
+  }
+}
 ```
 
 ### Code Quality
@@ -366,6 +521,40 @@ Implement planned architecture:
 - `bugfix/*`: Bug fixes
 - `hotfix/*`: Emergency fixes
 
+### Development Process with Agent Checkpoints
+1. **Planning Phase**
+   - Consult `volunteer-advocate` for UX design
+   - Consult `arch-reviewer` for architectural decisions
+
+2. **Implementation Phase**
+   - Consult `privacy-guardian` before handling user data
+   - Consult `payment-auditor` before payment code
+   - Consult `ai-economist` before AI features
+
+3. **Review Phase**
+   - Run `test-enforcer` for test coverage
+   - Run `perf-optimizer` for performance issues
+
+4. **Pre-Commit Checklist**
+   - Relevant agent consultations complete
+   - Tests passing (80% coverage minimum)
+   - Lint and type checks pass
+
+### Agent Consultation Matrix
+
+| Action | Required Agents | When |
+|--------|----------------|------|
+| Creating new API endpoint | privacy-guardian (if user data), arch-reviewer | Before implementation |
+| Adding database table | privacy-guardian, arch-reviewer | During schema design |
+| Implementing payment feature | payment-auditor, test-enforcer | Before and after coding |
+| Building new UI component | volunteer-advocate, ui-consistency* | Before implementation |
+| Adding AI feature | ai-economist, privacy-guardian | During planning |
+| Optimizing performance | perf-optimizer | After implementation |
+| Writing tests | test-enforcer | After feature completion |
+| Deploying to production | All relevant agents | During PR review |
+
+*Note: ui-consistency agent not yet configured but planned
+
 ### Commit Standards
 Format: `<type>(<scope>): <subject>`
 
@@ -374,10 +563,11 @@ Types: feat, fix, docs, style, refactor, test, chore
 ### Pull Request Process
 1. Create feature branch from develop
 2. Make changes with proper commits
-3. Ensure all tests pass
-4. Submit PR with template
-5. Requires 2 approvals
-6. Squash merge to develop
+3. Consult relevant agents based on changes
+4. Ensure all tests pass
+5. Submit PR with template (include agent consultations)
+6. Requires 2 approvals
+7. Squash merge to develop
 
 ## Important Considerations
 
@@ -392,6 +582,43 @@ Types: feat, fix, docs, style, refactor, test, chore
 - API response time < 200ms (p95)
 - Support 10,000 concurrent users
 - 99.9% uptime SLA
+
+### Performance Monitoring Tools
+
+#### Development Monitoring
+```bash
+# Bundle size analysis
+pnpm analyze
+
+# Lighthouse CI (run before commits)
+pnpm lighthouse
+
+# Web Vitals monitoring
+# Automatically tracked via Vercel Analytics
+```
+
+#### Performance Budget
+```json
+// .lighthouserc.js
+{
+  "ci": {
+    "assert": {
+      "preset": "lighthouse:recommended",
+      "assertions": {
+        "first-contentful-paint": ["error", {"maxNumericValue": 2000}],
+        "largest-contentful-paint": ["error", {"maxNumericValue": 3000}],
+        "cumulative-layout-shift": ["error", {"maxNumericValue": 0.1}],
+        "total-bundle-size": ["error", {"maxNumericValue": 300000}]
+      }
+    }
+  }
+}
+```
+
+#### Monitoring Dashboard
+- **Vercel Analytics**: Core Web Vitals
+- **Sentry**: Performance monitoring
+- **Custom Dashboard**: `/admin/performance` (Week 3 deliverable)
 
 ### Mobile-First Development
 - All features must work on mobile devices
