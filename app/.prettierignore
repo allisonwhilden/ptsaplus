@@ -1,0 +1,9 @@
+node_modules
+.next
+.vercel
+build
+dist
+*.log
+.env*
+pnpm-lock.yaml
+public

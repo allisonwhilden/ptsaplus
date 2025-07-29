@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "buildCommand": "cd app && pnpm install && pnpm build",
+  "devCommand": "cd app && pnpm dev",
+  "installCommand": "cd app && pnpm install",
+  "framework": "nextjs",
+  "outputDirectory": "app/.next",
+  "rootDirectory": "app",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+    "SUPABASE_SERVICE_KEY": "@supabase_service_key",
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "@next_public_clerk_publishable_key",
+    "CLERK_SECRET_KEY": "@clerk_secret_key",
+    "CLERK_WEBHOOK_SECRET": "@clerk_webhook_secret",
+    "STRIPE_SECRET_KEY": "@stripe_secret_key",
+    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "@next_public_stripe_publishable_key",
+    "OPENAI_API_KEY": "@openai_api_key"
+  },
+  "functions": {
+    "app/src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "regions": ["iad1"],
+  "github": {
+    "autoDeployment": true
+  }
+}

@@ -61,15 +61,17 @@ Project documentation is available in the `/docs` directory:
 ### Prerequisites
 - Node.js 18+
 - pnpm package manager
+- Git (for worktrees)
+- GitHub account
 - Supabase account
 - Clerk account
 - Stripe account
 
-### Installation
+### Quick Start
 
 ```bash
 # Clone the repository
-git clone [repository-url]
+git clone https://github.com/YOUR_USERNAME/ptsaplus.git
 cd ptsaplus
 
 # Navigate to app directory
@@ -84,6 +86,45 @@ cp .env.example .env.local
 
 # Run development server
 pnpm dev
+```
+
+### Development Workflow
+
+```bash
+# Create a new feature branch with worktree
+./scripts/worktree-create.sh feature-name
+
+# Switch to the new worktree
+cd ../ptsaplus-feature-name
+
+# Start development server (auto-detects available port)
+./scripts/worktree-dev.sh
+
+# When done, clean up
+cd ../ptsaplus
+./scripts/worktree-cleanup.sh ../ptsaplus-feature-name --delete-branch
+```
+
+### Available Scripts
+
+```bash
+# Development
+pnpm dev              # Start development server
+pnpm build           # Build for production
+pnpm start           # Start production server
+
+# Code Quality
+pnpm lint            # Run ESLint
+pnpm lint:fix        # Fix ESLint issues
+pnpm type-check      # Run TypeScript checking
+pnpm format          # Format code with Prettier
+pnpm format:check    # Check code formatting
+
+# Git Worktrees
+./scripts/worktree-list.sh     # List all worktrees
+./scripts/worktree-create.sh   # Create new worktree
+./scripts/worktree-cleanup.sh  # Remove worktree
+./scripts/worktree-dev.sh      # Start dev server
 ```
 
 ### Environment Setup
@@ -156,6 +197,27 @@ While built for our PTSA, the platform architecture could support:
 - SaaS offering
 
 See [Future Scaling Guide](./docs/future-scaling-guide.md) for details.
+
+## 🔗 Links
+
+- **Live Site**: [Deployed on Vercel](https://ptsaplus.vercel.app)
+- **Documentation**: [Setup Guide](./SETUP.md) | [Deployment Guide](./DEPLOYMENT.md)
+- **Development**: [Month 1 Plan](./docs/month-1-development-plan.md)
+
+## 🤝 Contributing
+
+1. Follow the [Setup Guide](./SETUP.md) to configure your development environment
+2. Create a feature branch using Git worktrees: `./scripts/worktree-create.sh your-feature`
+3. Make your changes following our privacy and security guidelines
+4. Ensure all tests pass and code quality checks pass
+5. Submit a pull request with a clear description
+
+### Development Guidelines
+
+- **Privacy First**: All features must comply with FERPA/COPPA requirements
+- **Volunteer-Friendly**: Features must pass the "5-minute test" for usability
+- **Security**: Never commit sensitive data or API keys
+- **Testing**: Add tests for critical paths, especially payment and privacy features
 
 ## 📞 Contact
 
