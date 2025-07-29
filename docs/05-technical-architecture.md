@@ -68,14 +68,16 @@
 ### 1. Frontend Applications
 
 #### Web Application (PWA)
-- **Technology**: Next.js 14 with TypeScript
+- **Technology**: Next.js 14 with TypeScript (App Router)
 - **Features**:
   - Server-side rendering for SEO
   - Progressive Web App capabilities
   - Offline functionality with service workers
   - Responsive design for all devices
+- **UI Components**: shadcn/ui - Accessible, customizable React components
+- **Styling**: Tailwind CSS - Utility-first CSS framework
 - **State Management**: Zustand for client state, React Query for server state
-- **UI Framework**: Tailwind CSS with Radix UI components
+- **Form Handling**: React Hook Form with Zod validation
 
 #### Admin Portal
 - **Technology**: Next.js with role-based access
@@ -146,11 +148,14 @@
 
 ### Frontend Stack
 ```yaml
-Framework: Next.js 14
+Framework: Next.js 14 (App Router)
 Language: TypeScript 5.0
-Styling: Tailwind CSS 3.0
-Components: Radix UI
-State: Zustand + React Query
+UI Components: shadcn/ui
+Styling: Tailwind CSS 3.4.x (NOT v4 - compatibility requirement)
+CSS Animation: tailwindcss-animate 1.0.x
+Icons: Lucide React
+Forms: React Hook Form + Zod
+State: Zustand + React Query (TanStack Query)
 Testing: Jest + React Testing Library
 Build: Turbo
 ```

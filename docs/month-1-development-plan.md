@@ -64,9 +64,25 @@ Instead of building the complete microservices architecture, we'll create a modu
 
 ```yaml
 Frontend:
-  Framework: Next.js 14 with TypeScript
-  Styling: Tailwind CSS + shadcn/ui
+  Framework: Next.js 14 with TypeScript (App Router)
+  UI Components: shadcn/ui (PRIMARY - use first, document if alternatives needed)
+  Styling: Tailwind CSS v3.4.x (IMPORTANT: NOT v4 - compatibility issues)
+  CSS Animation: tailwindcss-animate v1.0.x
+  Icons: Lucide React (comes with shadcn/ui)
+  Forms: React Hook Form + Zod validation
+  State: Zustand + React Query
   Deployment: Vercel
+  
+Component Strategy:
+  - Start with shadcn/ui for all UI needs
+  - If gap found, document and get approval for alternatives
+  - Maintain Tailwind CSS v3 compatibility
+  - Keep accessibility standards high
+  
+Version Notes:
+  - Tailwind v4 is still in beta and has breaking changes
+  - Many community components aren't v4 compatible yet
+  - Stick with v3.4.x for stability
   
 Backend:
   Framework: Next.js API Routes (start simple)
@@ -95,10 +111,14 @@ Monitoring:
 
 #### Monday (Jan 6)
 **Morning (4 hours)**
-- [ ] Set up GitHub repository with initial Next.js 14 project
+- [ ] Create new Next.js 14 project with TypeScript and App Router
 - [ ] Configure TypeScript, ESLint, Prettier
-- [ ] Set up Tailwind CSS and shadcn/ui
-- [ ] Create basic project structure
+- [ ] Initialize shadcn/ui with proper configuration:
+  - Run `pnpm dlx shadcn-ui@latest init`
+  - Select TypeScript, Default style, Slate color, CSS variables
+- [ ] Install core shadcn/ui components (button, card, form, input, etc.)
+- [ ] Set up Tailwind CSS configuration
+- [ ] Create basic project structure with /components/ui folder
 
 **Afternoon (4 hours)**
 - [ ] Set up Supabase project and database
@@ -160,10 +180,17 @@ Monitoring:
 - [ ] Security review checklist
 
 **Afternoon (4 hours)**
-- [ ] Document learnings
+- [ ] Set up Git worktrees for parallel development
+  - [ ] Create worktree management scripts:
+    - `scripts/worktree-list.sh` - List all active worktrees
+    - `scripts/worktree-create.sh` - Create new worktree with auto-generated branch
+    - `scripts/worktree-cleanup.sh` - Remove worktree and optionally delete branch
+    - `scripts/worktree-dev.sh` - Start dev server on available port
+  - [ ] Configure port management for parallel instances
+  - [ ] Document worktree workflow in README
+- [ ] Document Week 1 learnings
 - [ ] Create demo video
 - [ ] Prepare for stakeholder review
-- [ ] Plan Week 2 adjustments
 
 ### Week 2: Privacy & Compliance (Jan 13-17)
 
