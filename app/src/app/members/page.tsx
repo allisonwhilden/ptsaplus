@@ -46,11 +46,22 @@ export default async function MembersPage({
 
   const isAdmin = userData?.role === 'admin' || userData?.role === 'board'
 
-  // Build query
+  // Build query with data minimization - only select necessary fields
   let query = supabase
     .from('members')
-    .select('*')
-    .order('created_at', { ascending: false })
+    .select(`
+      id,
+      first_name,
+      last_name,
+      ${isAdmin ? 'email,' : ''}
+      membership_type,
+      membership_status,
+      joined_at,
+      ${isAdmin ? 'phone, student_info, privacy_consent_given,' : ''}
+      deleted_at
+    `)
+    .is('deleted_at', null) // Only show non-deleted members
+    .order('joined_at', { ascending: false })
 
   // Apply search filter
   if (searchParams.search) {
@@ -156,7 +167,7 @@ export default async function MembersPage({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
+                    {isAdmin && <TableHead>Email</TableHead>}
                     <TableHead>Type</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Joined</TableHead>
@@ -164,12 +175,12 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members?.map((member: Member) => (
+                  {members?.map((member: any) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
                       </TableCell>
-                      <TableCell>{member.email}</TableCell>
+                      {isAdmin && <TableCell>{member.email}</TableCell>}
                       <TableCell>
                         {getMembershipTypeLabel(member.membership_type)}
                       </TableCell>

@@ -30,9 +30,15 @@ export async function POST(request: NextRequest) {
       membershipType,
       studentName,
       studentGrade,
+      hasStudentInfo,
       volunteerInterest,
       membershipAmount,
+      consentData,
     } = body
+
+    // Get IP address for audit logging
+    const forwarded = request.headers.get('x-forwarded-for')
+    const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip')
 
     // Check if member already exists
     const { data: existingMember } = await supabase
@@ -48,7 +54,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create the member record
+    // Create the member record with privacy compliance
     const { data: member, error: memberError } = await supabase
       .from('members')
       .insert({
@@ -62,13 +68,19 @@ export async function POST(request: NextRequest) {
         membership_expires_at: membershipAmount > 0 
           ? null 
           : new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
-        student_info: studentName || studentGrade
+        // Only store student info if explicitly consented to
+        student_info: hasStudentInfo && consentData?.studentData && (studentName || studentGrade)
           ? {
               name: studentName || null,
               grade: studentGrade || null,
             }
           : null,
-        volunteer_interests: volunteerInterest ? ['general'] : [],
+        volunteer_interests: volunteerInterest ? ['general'] : null,
+        // Privacy compliance fields
+        privacy_consent_given: consentData?.privacy || false,
+        parent_consent_required: false, // TODO: Implement age verification for COPPA
+        parent_consent_given: consentData?.parentalConsent || null,
+        consent_date: new Date().toISOString(),
         joined_at: new Date().toISOString(),
       })
       .select('id')
@@ -80,6 +92,37 @@ export async function POST(request: NextRequest) {
         { error: 'Failed to create member' },
         { status: 500 }
       )
+    }
+
+    // Record consent history for compliance audit trail
+    if (member && consentData) {
+      const consentRecords = []
+      
+      if (consentData.privacy) {
+        consentRecords.push({
+          member_id: member.id,
+          consent_type: 'privacy',
+          consent_given: consentData.privacy,
+          consent_method: consentData.consentMethod,
+          ip_address: ip,
+          user_agent: consentData.userAgent,
+        })
+      }
+      
+      if (consentData.studentData) {
+        consentRecords.push({
+          member_id: member.id,
+          consent_type: 'student_data',
+          consent_given: consentData.studentData,
+          consent_method: consentData.consentMethod,
+          ip_address: ip,
+          user_agent: consentData.userAgent,
+        })
+      }
+      
+      if (consentRecords.length > 0) {
+        await supabase.from('consent_history').insert(consentRecords)
+      }
     }
 
     // If it's a free membership (teacher), also update the user record

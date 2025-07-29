@@ -32,12 +32,29 @@ const registrationSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   phone: z.string().min(10, 'Please enter a valid phone number'),
   membershipType: z.enum(['individual', 'family', 'teacher']),
+  // Student information (FERPA protected)
   studentName: z.string().optional(),
   studentGrade: z.string().optional(),
+  hasStudentInfo: z.boolean().default(false),
+  // Privacy and consent (COPPA/FERPA compliance)
   agreeToTerms: z.boolean().refine((val) => val === true, {
     message: 'You must agree to the terms and conditions',
   }),
+  privacyConsent: z.boolean().refine((val) => val === true, {
+    message: 'You must consent to our privacy policy',
+  }),
+  studentDataConsent: z.boolean().optional(), // Required only if student info provided
+  parentalConsent: z.boolean().optional(), // Required for COPPA compliance
   volunteerInterest: z.boolean().default(false),
+}).refine((data) => {
+  // If student info is provided, student data consent is required
+  if (data.hasStudentInfo && (data.studentName || data.studentGrade)) {
+    return data.studentDataConsent === true
+  }
+  return true
+}, {
+  message: 'You must consent to student data collection if providing student information',
+  path: ['studentDataConsent']
 })
 
 type RegistrationFormValues = z.infer<typeof registrationSchema>
@@ -57,12 +74,17 @@ export function RegistrationForm({ userId }: { userId: string }) {
       membershipType: 'individual',
       studentName: '',
       studentGrade: '',
+      hasStudentInfo: false,
       agreeToTerms: false,
+      privacyConsent: false,
+      studentDataConsent: false,
+      parentalConsent: false,
       volunteerInterest: false,
     },
   })
 
   const selectedMembershipType = form.watch('membershipType')
+  const hasStudentInfo = form.watch('hasStudentInfo')
   const membershipAmount = membershipTypes.find(
     (type) => type.value === selectedMembershipType
   )?.amount || 0
@@ -77,6 +99,16 @@ export function RegistrationForm({ userId }: { userId: string }) {
           ...values,
           userId,
           membershipAmount,
+          // Include consent tracking
+          consentData: {
+            privacy: values.privacyConsent,
+            terms: values.agreeToTerms,
+            studentData: values.studentDataConsent,
+            parentalConsent: values.parentalConsent,
+            consentMethod: 'web_form',
+            ipAddress: null, // Will be captured server-side
+            userAgent: navigator.userAgent,
+          },
         }),
       })
 
@@ -201,49 +233,100 @@ export function RegistrationForm({ userId }: { userId: string }) {
           <>
             <FormField
               control={form.control}
-              name="studentName"
+              name="hasStudentInfo"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Student Name (Optional)</FormLabel>
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
-                  <FormDescription>
-                    Name of your child attending our school
-                  </FormDescription>
-                  <FormMessage />
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      I want to provide student information
+                    </FormLabel>
+                    <FormDescription>
+                      Check this box if you'd like to associate your child's information with your membership
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="studentGrade"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Student Grade (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select grade" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="K">Kindergarten</SelectItem>
-                      <SelectItem value="1">1st Grade</SelectItem>
-                      <SelectItem value="2">2nd Grade</SelectItem>
-                      <SelectItem value="3">3rd Grade</SelectItem>
-                      <SelectItem value="4">4th Grade</SelectItem>
-                      <SelectItem value="5">5th Grade</SelectItem>
-                      <SelectItem value="6">6th Grade</SelectItem>
-                      <SelectItem value="7">7th Grade</SelectItem>
-                      <SelectItem value="8">8th Grade</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {hasStudentInfo && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="studentName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Student Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Name of your child attending our school
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="studentGrade"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Student Grade</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select grade" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="K">Kindergarten</SelectItem>
+                          <SelectItem value="1">1st Grade</SelectItem>
+                          <SelectItem value="2">2nd Grade</SelectItem>
+                          <SelectItem value="3">3rd Grade</SelectItem>
+                          <SelectItem value="4">4th Grade</SelectItem>
+                          <SelectItem value="5">5th Grade</SelectItem>
+                          <SelectItem value="6">6th Grade</SelectItem>
+                          <SelectItem value="7">7th Grade</SelectItem>
+                          <SelectItem value="8">8th Grade</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="studentDataConsent"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          Student Data Consent (Required)
+                        </FormLabel>
+                        <FormDescription className="text-xs">
+                          I consent to the collection and storage of my child's educational information in compliance with FERPA. This information will only be used for PTSA activities and will not be shared with third parties.
+                        </FormDescription>
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
           </>
         )}
 
@@ -270,28 +353,57 @@ export function RegistrationForm({ userId }: { userId: string }) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="agreeToTerms"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>
-                  I agree to the terms and conditions
-                </FormLabel>
-                <FormDescription>
-                  By joining, you agree to our membership terms and privacy policy
-                </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
+        <div className="space-y-4 rounded-md border p-4">
+          <h3 className="text-sm font-medium">Privacy and Consent</h3>
+          
+          <FormField
+            control={form.control}
+            name="privacyConsent"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    I consent to the privacy policy
+                  </FormLabel>
+                  <FormDescription>
+                    I understand how my personal information will be collected, used, and protected
+                  </FormDescription>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="agreeToTerms"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    I agree to the terms and conditions
+                  </FormLabel>
+                  <FormDescription>
+                    I agree to the PTSA membership terms and conditions
+                  </FormDescription>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="pt-4">
           {membershipAmount > 0 && (

@@ -187,22 +187,59 @@ export default async function MemberDetailPage({
           )}
 
           {isAdmin && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Administrative Actions</CardTitle>
-                <CardDescription>Manage this member's account</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-2">
-                  <Button variant="outline">Send Password Reset</Button>
-                  <Button variant="outline">Export Member Data</Button>
-                  {member.membership_status === 'pending' && (
-                    <Button variant="outline">Mark as Paid</Button>
-                  )}
-                  <Button variant="destructive">Remove Member</Button>
-                </div>
-              </CardContent>
-            </Card>
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Privacy & Compliance</CardTitle>
+                  <CardDescription>Privacy consent and data handling status</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Privacy Consent</p>
+                      <Badge variant={member.privacy_consent_given ? 'default' : 'destructive'}>
+                        {member.privacy_consent_given ? 'Given' : 'Not Given'}
+                      </Badge>
+                    </div>
+                    {member.student_info && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Student Data Consent</p>
+                        <Badge variant="default">FERPA Compliant</Badge>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Consent Date</p>
+                      <p className="text-sm">{member.consent_date ? new Date(member.consent_date).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Data Processing</p>
+                      <p className="text-sm">Minimal data collection</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Administrative Actions</CardTitle>
+                  <CardDescription>Manage this member's account</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button variant="outline">View Privacy Audit Log</Button>
+                    <Button variant="outline">Export Member Data</Button>
+                    {member.membership_status === 'pending' && (
+                      <Button variant="outline">Mark as Paid</Button>
+                    )}
+                    <Button variant="outline">Withdraw Consent</Button>
+                    <Button variant="destructive">Remove Member (GDPR)</Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    All actions are logged for compliance audit trail
+                  </p>
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
       </div>

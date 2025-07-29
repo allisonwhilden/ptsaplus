@@ -1,37 +1,53 @@
 // Single PTSA Database Types
 
 export type UserRole = 'admin' | 'board' | 'committee_chair' | 'member' | 'teacher'
-export type MembershipType = 'individual' | 'family' | 'teacher' | 'business'
+export type MembershipType = 'individual' | 'family' | 'teacher'
+export type MembershipStatus = 'active' | 'pending' | 'expired'
 export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'canceled'
 export type PaymentType = 'membership_dues' | 'donation' | 'event_ticket' | 'fundraiser'
 export type AnnouncementPriority = 'urgent' | 'high' | 'normal' | 'low'
 export type AnnouncementAudience = 'all' | 'members' | 'board' | 'committees'
 export type DocumentAccessLevel = 'public' | 'members' | 'board'
 
+// Privacy-compliant user interface
 export interface User {
   id: string
-  clerk_id: string
   email: string
-  name: string | null
-  avatar_url: string | null
-  phone: string | null
+  first_name: string
+  last_name: string
   role: UserRole
-  is_active: boolean
+  member_id: string | null
   created_at: string
-  updated_at: string
+  updated_at: string | null
+  deleted_at: string | null
 }
 
+// Student information with privacy controls
+export interface StudentInfo {
+  name: string | null
+  grade: string | null
+  // Additional fields can be added as needed with proper privacy controls
+}
+
+// Privacy-compliant member interface
 export interface Member {
   id: string
-  user_id: string | null
+  user_id: string
+  email: string
+  first_name: string
+  last_name: string
+  phone: string | null
   membership_type: MembershipType
-  membership_expires: string | null
-  joined_date: string
-  auto_renew: boolean
-  notes: string | null
-  created_at: string
-  updated_at: string
-  user?: User
+  membership_status: MembershipStatus
+  membership_expires_at: string | null
+  student_info: StudentInfo | null // FERPA-protected data
+  volunteer_interests: string[] | null
+  privacy_consent_given: boolean
+  parent_consent_required: boolean // COPPA compliance
+  parent_consent_given: boolean | null
+  joined_at: string
+  updated_at: string | null
+  deleted_at: string | null
 }
 
 export interface Payment {

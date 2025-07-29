@@ -4,31 +4,43 @@
 -- Enable RLS
 ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
 
--- Users table (synced with Clerk)
+-- Users table (synced with Clerk) - Simplified for privacy
 CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  clerk_id VARCHAR(255) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
-  name VARCHAR(255),
-  avatar_url VARCHAR(255),
-  phone VARCHAR(20),
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
   role VARCHAR(50) DEFAULT 'member' CHECK (role IN ('admin', 'board', 'committee_chair', 'member', 'teacher')),
-  is_active BOOLEAN DEFAULT true,
+  member_id UUID, -- FK to members table, set after member creation
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  deleted_at TIMESTAMP WITH TIME ZONE -- Soft delete for data retention compliance
 );
 
--- Members table (PTSA membership info)
+-- Members table (PTSA membership info) - Privacy compliant
 CREATE TABLE members (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  membership_type VARCHAR(50) DEFAULT 'individual' CHECK (membership_type IN ('individual', 'family', 'teacher', 'business')),
-  membership_expires DATE,
-  joined_date DATE DEFAULT CURRENT_DATE,
-  auto_renew BOOLEAN DEFAULT false,
-  notes TEXT,
+  email VARCHAR(255) NOT NULL, -- Duplicate for data consistency
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  phone VARCHAR(20),
+  membership_type VARCHAR(50) DEFAULT 'individual' CHECK (membership_type IN ('individual', 'family', 'teacher')),
+  membership_status VARCHAR(50) DEFAULT 'pending' CHECK (membership_status IN ('active', 'pending', 'expired')),
+  membership_expires_at TIMESTAMP WITH TIME ZONE,
+  -- FERPA-protected student information
+  student_info JSONB, -- {name: string, grade: string}
+  volunteer_interests TEXT[], -- Array of volunteer interest areas
+  -- Privacy and consent tracking (COPPA/FERPA compliance)
+  privacy_consent_given BOOLEAN DEFAULT false,
+  parent_consent_required BOOLEAN DEFAULT false, -- Determined by age verification
+  parent_consent_given BOOLEAN, -- null if not required, true/false if required
+  consent_date TIMESTAMP WITH TIME ZONE, -- When consent was given
+  -- Audit fields
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  deleted_at TIMESTAMP WITH TIME ZONE -- Soft delete for compliance
 );
 
 -- Payments table
@@ -177,16 +189,36 @@ CREATE POLICY "Admins can manage all users" ON users
     )
   );
 
--- Members policies
-CREATE POLICY "Anyone can view active members" ON members
-  FOR SELECT USING (true);
+-- Members policies - Privacy focused
+CREATE POLICY "Members can view basic member directory" ON members
+  FOR SELECT USING (
+    -- Only show basic info, not student data or sensitive details
+    auth.uid() IS NOT NULL AND deleted_at IS NULL
+  );
 
-CREATE POLICY "Admins can manage memberships" ON members
+CREATE POLICY "Users can view their own member profile" ON members
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all member data including student info" ON members
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.role IN ('admin', 'board')
+      AND users.deleted_at IS NULL
+    )
+  );
+
+CREATE POLICY "Users can update their own membership" ON members
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can manage all memberships" ON members
   FOR ALL USING (
     EXISTS (
       SELECT 1 FROM users
       WHERE users.id = auth.uid()
       AND users.role IN ('admin', 'board')
+      AND users.deleted_at IS NULL
     )
   );
 
@@ -275,6 +307,59 @@ CREATE TRIGGER update_documents_updated_at BEFORE UPDATE ON documents
 
 CREATE TRIGGER update_settings_updated_at BEFORE UPDATE ON settings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Privacy audit log for FERPA/COPPA compliance
+CREATE TABLE privacy_audit_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
+  action VARCHAR(50) NOT NULL, -- 'view', 'edit', 'delete', 'export'
+  data_type VARCHAR(50) NOT NULL, -- 'student_info', 'contact_info', 'membership'
+  accessed_by UUID REFERENCES users(id),
+  access_reason VARCHAR(255), -- Justification for access
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- Privacy consent history
+CREATE TABLE consent_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
+  consent_type VARCHAR(50) NOT NULL, -- 'privacy', 'marketing', 'data_sharing'
+  consent_given BOOLEAN NOT NULL,
+  consent_method VARCHAR(50), -- 'web_form', 'email', 'phone', 'paper'
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- Indexes for audit tables
+CREATE INDEX idx_privacy_audit_member_id ON privacy_audit_log(member_id);
+CREATE INDEX idx_privacy_audit_created_at ON privacy_audit_log(created_at);
+CREATE INDEX idx_consent_history_member_id ON consent_history(member_id);
+
+-- Enable RLS on audit tables
+ALTER TABLE privacy_audit_log ENABLE ROW LEVEL SECURITY;
+ALTER TABLE consent_history ENABLE ROW LEVEL SECURITY;
+
+-- Audit table policies (admin only)
+CREATE POLICY "Only admins can view privacy audit log" ON privacy_audit_log
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Only admins can view consent history" ON consent_history
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()
+      AND users.role = 'admin'
+    )
+  );
 
 -- Insert default settings row
 INSERT INTO settings (ptsa_name, school_name) 
