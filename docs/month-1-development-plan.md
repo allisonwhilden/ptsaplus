@@ -1,10 +1,12 @@
-# PTSA+ Month 1 Development Plan: Risk-Based Approach
+# PTSA Month 1 Development Plan: Risk-Based Approach
 
 ## Executive Summary
 
-This document outlines a risk-based development approach for the first month of PTSA+ development. Instead of building the full infrastructure outlined in our technical architecture, we'll focus on validating the highest-risk assumptions through targeted prototypes and proof-of-concept implementations.
+This document outlines a risk-based development approach for the first month of PTSA platform development. The project has been simplified to focus on a single PTSA's needs rather than a multi-tenant platform. We'll focus on validating the highest-risk assumptions through targeted prototypes and proof-of-concept implementations.
 
-**Key Strategy**: Build minimal prototypes that prove we can handle payments, protect student data, control AI costs, and deliver a simple experience for non-technical volunteers.
+**Key Strategy**: Build a functional platform for a single PTSA that proves we can handle payments, protect student data, control AI costs, and deliver a simple experience for non-technical volunteers.
+
+**Update (Jan 7)**: Pivoted from multi-tenant PTSA+ to single PTSA focus. Completed user registration, member management, and role assignment features.
 
 ## Risk Analysis & Prioritization
 
@@ -124,62 +126,72 @@ Monitoring:
 - [x] Set up Supabase project and database
 - [x] Design minimal schema:
   ```sql
-  -- Core tables only
-  organizations (id, name, settings)
+  -- Single PTSA tables
   users (id, email, name, role)
-  organization_members (user_id, org_id, role)
+  members (id, user_id, membership_type, status)
   payments (id, user_id, amount, status)
+  events (id, title, start_date, end_date)
+  committees (id, name, description)
+  announcements (id, title, content)
+  documents (id, title, file_url)
+  settings (id, ptsa_name, school_name)
   ```
 - [x] Set up Clerk authentication
 - [x] Create basic layout components
 
 #### Tuesday (Jan 7)
 **Morning (4 hours)**
-- [ ] Implement user registration flow
-- [ ] Create organization setup wizard
-- [ ] Build role assignment (Admin, Parent)
-- [ ] Add form validation with react-hook-form
+- [x] Implement user registration flow
+- [x] Create organization setup wizard (simplified for single PTSA)
+- [x] Build role assignment (Admin, Board, Committee Chair, Teacher, Member)
+- [x] Add form validation with react-hook-form
 
 **Afternoon (4 hours)**
-- [ ] Design membership payment page
-- [ ] Create pricing display component
-- [ ] Build payment form UI
-- [ ] Add loading states and error handling
+- [x] Create member management features (list, detail, edit)
+- [x] Build member directory with search and filtering
+- [x] Add member profile pages with role-based access
+- [x] Implement member data API endpoints
+- [x] Add Clerk webhook for user synchronization
+- [x] Create dashboard page with membership status
 
 #### Wednesday (Jan 8)
 **Morning (4 hours)**
+- [ ] Design membership payment page
+- [ ] Create pricing display component  
+- [ ] Build payment form UI
+- [ ] Add loading states and error handling
+
+**Afternoon (4 hours)**
 - [ ] Integrate Stripe Connect
 - [ ] Implement payment intent creation
 - [ ] Build payment confirmation flow
 - [ ] Add receipt generation
 
-**Afternoon (4 hours)**
-- [ ] Create basic dashboard for admins
-- [ ] Show recent payments and members
-- [ ] Add member list with export to CSV
-- [ ] Implement basic financial summary
-
 #### Thursday (Jan 9)
 **Morning (4 hours)**
+- [ ] Create basic dashboard for members
+- [ ] Show membership status and payment history
+- [ ] Add quick actions for common tasks
+- [ ] Implement dashboard for admin/board roles
+
+**Afternoon (4 hours)**
 - [ ] Add guest checkout option
 - [ ] Implement payment without account creation
 - [ ] Build email receipt system
 - [ ] Test complete payment flow
 
-**Afternoon (4 hours)**
+#### Friday (Jan 10)
+**Morning (4 hours)**
 - [ ] Set up Vercel deployment
 - [ ] Configure environment variables
 - [ ] Set up custom domain
 - [ ] Deploy and test in production
 
-#### Friday (Jan 10)
-**Morning (4 hours)**
+**Afternoon (4 hours)**
 - [ ] End-to-end testing of all flows
 - [ ] Fix critical bugs
 - [ ] Performance optimization
 - [ ] Security review checklist
-
-**Afternoon (4 hours)**
 - [ ] Set up Git worktrees for parallel development
   - [ ] Create worktree management scripts:
     - `scripts/worktree-list.sh` - List all active worktrees
