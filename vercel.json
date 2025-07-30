@@ -1,8 +1,8 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "installCommand": "npm install -g pnpm@8.15.9 && cd app && pnpm install",
-  "buildCommand": "cd app && pnpm build",
+  "installCommand": "cd app && npx pnpm@8.15.9 install",
+  "buildCommand": "cd app && npx pnpm@8.15.9 build",
   "devCommand": "cd app && pnpm dev",
   "outputDirectory": "app/.next",
   "functions": {
