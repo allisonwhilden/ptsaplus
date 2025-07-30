@@ -9,12 +9,29 @@ echo "You'll need to update them with real values in the Vercel dashboard."
 echo ""
 
 # Add placeholder values for all environments
-echo "NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co" | vercel env add NEXT_PUBLIC_SUPABASE_URL production preview development
-echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder_anon_key" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production preview development
-echo "SUPABASE_SERVICE_KEY=placeholder_service_key" | vercel env add SUPABASE_SERVICE_KEY production preview development
-echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_placeholder" | vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production preview development
-echo "CLERK_SECRET_KEY=sk_test_placeholder" | vercel env add CLERK_SECRET_KEY production preview development
-echo "CLERK_WEBHOOK_SECRET=whsec_placeholder" | vercel env add CLERK_WEBHOOK_SECRET production preview development
+echo "https://placeholder.supabase.co" | vercel env add NEXT_PUBLIC_SUPABASE_URL production
+echo "https://placeholder.supabase.co" | vercel env add NEXT_PUBLIC_SUPABASE_URL preview
+echo "https://placeholder.supabase.co" | vercel env add NEXT_PUBLIC_SUPABASE_URL development
+
+echo "placeholder_anon_key" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
+echo "placeholder_anon_key" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY preview
+echo "placeholder_anon_key" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY development
+
+echo "placeholder_service_key" | vercel env add SUPABASE_SERVICE_KEY production
+echo "placeholder_service_key" | vercel env add SUPABASE_SERVICE_KEY preview
+echo "placeholder_service_key" | vercel env add SUPABASE_SERVICE_KEY development
+
+echo "pk_test_placeholder" | vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY production
+echo "pk_test_placeholder" | vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY preview
+echo "pk_test_placeholder" | vercel env add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY development
+
+echo "sk_test_placeholder" | vercel env add CLERK_SECRET_KEY production
+echo "sk_test_placeholder" | vercel env add CLERK_SECRET_KEY preview
+echo "sk_test_placeholder" | vercel env add CLERK_SECRET_KEY development
+
+echo "whsec_placeholder" | vercel env add CLERK_WEBHOOK_SECRET production
+echo "whsec_placeholder" | vercel env add CLERK_WEBHOOK_SECRET preview
+echo "whsec_placeholder" | vercel env add CLERK_WEBHOOK_SECRET development
 
 echo ""
 echo "✅ Placeholder environment variables added!"
