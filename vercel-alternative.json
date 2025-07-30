@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "rootDirectory": "app",
+  "installCommand": "cd .. && npm install -g pnpm@9.0.0 && cd app && pnpm install",
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "outputDirectory": ".next"
+}

@@ -3,12 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "description": "PTSA+ Platform - Modern PTSA management system",
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
-    "dev": "cd app && pnpm dev",
-    "build": "cd app && pnpm build",
-    "start": "cd app && pnpm start",
-    "lint": "cd app && pnpm lint",
-    "type-check": "cd app && pnpm type-check"
+    "dev": "pnpm --filter app dev",
+    "build": "pnpm --filter app build",
+    "start": "pnpm --filter app start",
+    "lint": "pnpm --filter app lint",
+    "type-check": "pnpm --filter app type-check",
+    "clean": "pnpm --filter app run clean && rm -rf node_modules"
   },
   "repository": {
     "type": "git",
