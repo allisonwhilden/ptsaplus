@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+import { getSupabaseServiceClient } from '@/lib/supabase-server'
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseServiceClient()
     // Verify the user is authenticated
     const { userId } = await auth()
     if (!userId) {

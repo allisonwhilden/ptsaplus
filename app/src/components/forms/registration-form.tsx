@@ -35,7 +35,7 @@ const registrationSchema = z.object({
   // Student information (FERPA protected)
   studentName: z.string().optional(),
   studentGrade: z.string().optional(),
-  hasStudentInfo: z.boolean().default(false),
+  hasStudentInfo: z.boolean(),
   // Privacy and consent (COPPA/FERPA compliance)
   agreeToTerms: z.boolean().refine((val) => val === true, {
     message: 'You must agree to the terms and conditions',
@@ -45,7 +45,7 @@ const registrationSchema = z.object({
   }),
   studentDataConsent: z.boolean().optional(), // Required only if student info provided
   parentalConsent: z.boolean().optional(), // Required for COPPA compliance
-  volunteerInterest: z.boolean().default(false),
+  volunteerInterest: z.boolean(),
 }).refine((data) => {
   // If student info is provided, student data consent is required
   if (data.hasStudentInfo && (data.studentName || data.studentGrade)) {

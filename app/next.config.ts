@@ -50,9 +50,6 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // Output configuration
-  output: "standalone",
-  
   // Headers for performance
   async headers() {
     return [

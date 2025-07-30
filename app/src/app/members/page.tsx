@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseServiceClient } from '@/lib/supabase-server'
 import { MainLayout } from '@/components/layout/main-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,16 +10,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import Link from 'next/link'
 import { Member } from '@/types/database'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
 export default async function MembersPage({
   searchParams,
 }: {
-  searchParams: { search?: string; status?: string }
+  searchParams: Promise<{ search?: string; status?: string }>
 }) {
+  const params = await searchParams;
+  const supabase = getSupabaseServiceClient()
   const user = await currentUser()
   
   if (!user) {
@@ -64,15 +61,15 @@ export default async function MembersPage({
     .order('joined_at', { ascending: false })
 
   // Apply search filter
-  if (searchParams.search) {
+  if (params.search) {
     query = query.or(
-      `first_name.ilike.%${searchParams.search}%,last_name.ilike.%${searchParams.search}%,email.ilike.%${searchParams.search}%`
+      `first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%`
     )
   }
 
   // Apply status filter
-  if (searchParams.status) {
-    query = query.eq('membership_status', searchParams.status)
+  if (params.status) {
+    query = query.eq('membership_status', params.status)
   }
 
   const { data: members, error } = await query
@@ -142,13 +139,13 @@ export default async function MembersPage({
                 <Input
                   placeholder="Search by name or email..."
                   name="search"
-                  defaultValue={searchParams.search}
+                  defaultValue={params.search}
                 />
               </form>
               <form>
                 <select
                   name="status"
-                  defaultValue={searchParams.status}
+                  defaultValue={params.status}
                   className="h-10 px-3 border border-input bg-background rounded-md"
                 >
                   <option value="">All Status</option>

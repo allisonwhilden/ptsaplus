@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+import { getSupabaseServiceClient } from '@/lib/supabase-server'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
+    const supabase = getSupabaseServiceClient()
     // Verify the user is authenticated
     const { userId } = await auth()
     if (!userId) {
@@ -39,7 +36,7 @@ export async function PATCH(
     }
 
     // Prevent removing the last admin
-    if (params.id === userId && role !== 'admin') {
+    if (id === userId && role !== 'admin') {
       const { count } = await supabase
         .from('users')
         .select('id', { count: 'exact' })
@@ -57,7 +54,7 @@ export async function PATCH(
     const { error } = await supabase
       .from('users')
       .update({ role })
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       console.error('Error updating role:', error)
