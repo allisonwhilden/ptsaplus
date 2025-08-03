@@ -4,15 +4,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Project Status
 
-**IMPORTANT**: This project is currently in the planning and documentation phase. Development follows a risk-based approach as outlined in `/docs/month-1-development-plan.md`. When working on this project:
-1. Start with the Month 1 development plan for immediate priorities
-2. Focus on validating critical risks before building full infrastructure
-3. Use simplified technology stack for rapid prototyping
-4. Target MVP launch is April 2025
+**IMPORTANT**: This project has successfully pivoted from a multi-tenant PTSA+ platform to a single PTSA solution and is now deployed to production at https://ptsaplus.vercel.app. Development follows a risk-based approach as outlined in `/docs/month-1-development-plan.md`.
+
+### Completed Features (as of January 2025)
+✅ User authentication (Clerk integration)
+✅ Member registration and management
+✅ Role-based access control (admin, board, committee_chair, member, teacher)
+✅ Privacy-compliant data handling (FERPA/COPPA considerations)
+✅ Basic admin dashboard
+✅ Member directory with privacy controls
+✅ Production deployment to Vercel
+✅ CI/CD pipeline with GitHub integration
+
+### In Progress
+🔄 Payment processing (Stripe integration)
+🔄 Event management system
+🔄 Email communications
+🔄 AI-assisted features
+
+### When working on this project:
+1. Build on the existing foundation - authentication and member management are complete
+2. Focus on validating remaining critical risks (payments, AI costs)
+3. Continue using the simplified technology stack for rapid development
+4. Target MVP completion is April 2025
 
 ## Project Overview
 
-PTSA+ is a modern, AI-powered platform for Parent-Teacher-Student Associations designed to simplify operations for volunteer-run organizations while ensuring compliance with educational data privacy laws.
+PTSA Platform (originally PTSA+) is a modern, AI-powered platform for a single Parent-Teacher-Student Association designed to simplify operations for volunteer-run organizations while ensuring compliance with educational data privacy laws. The project has pivoted from a multi-tenant SaaS approach to focus on building a robust solution for a single PTSA, with the architecture designed to potentially scale to multiple PTSAs in the future.
 
 ## Development Philosophy
 
@@ -160,10 +178,10 @@ This platform handles sensitive student and family data. For every feature:
 - **Uptime**: > 99%
 
 ### Business Validation
-- **First PTSA Onboarded**: Week 4 of Month 1
-- **10 PTSAs**: End of Month 1
-- **User Activation Rate**: > 80%
-- **Support Tickets**: < 5% of users
+- **Platform Deployment**: ✅ Completed (https://ptsaplus.vercel.app)
+- **Core Features**: Member management operational
+- **User Activation Rate**: > 80% (target)
+- **Support Tickets**: < 5% of users (target)
 
 ## Agent Usage Guidelines
 
@@ -315,17 +333,17 @@ Example workflow:
 
 For rapid development and validation, use these managed services:
 
-### Frontend (See detailed requirements above)
-- **Framework**: Next.js 14 with TypeScript
-- **UI Components**: shadcn/ui
-- **Styling**: Tailwind CSS
-- **Deployment**: Vercel
+### Frontend (Implemented)
+- **Framework**: Next.js 15.4.4 with TypeScript ✅
+- **UI Components**: shadcn/ui ✅
+- **Styling**: Tailwind CSS v3.4.17 ✅
+- **Deployment**: Vercel ✅
 
-### Backend
-- **API**: Next.js API Routes (start simple)
-- **Database**: Supabase (PostgreSQL)
-- **Auth**: Clerk
-- **Payments**: Stripe Connect
+### Backend (Implemented/In Progress)
+- **API**: Next.js API Routes ✅
+- **Database**: Supabase (PostgreSQL) ✅
+- **Auth**: Clerk ✅
+- **Payments**: Stripe Connect 🔄
 
 ### Infrastructure
 - **Hosting**: Vercel
@@ -515,11 +533,26 @@ Implement planned architecture:
 ## Development Workflow
 
 ### Git Flow
-- `main`: Production-ready code
-- `develop`: Integration branch
-- `feature/*`: New features
-- `bugfix/*`: Bug fixes
-- `hotfix/*`: Emergency fixes
+**IMPORTANT**: Always work from the `develop` branch, not `main`.
+
+- `main`: Production-ready code (auto-deploys to production)
+- `develop`: Integration branch (auto-deploys to preview)
+- `feature/*`: New features (branch from develop)
+- `bugfix/*`: Bug fixes (branch from develop)
+- `hotfix/*`: Emergency fixes (branch from main, merge to both main and develop)
+
+### Starting New Work
+```bash
+# Use worktree script (recommended)
+./scripts/worktree-create.sh payment-integration  # Creates feature/payment-integration from develop
+
+# Or manually
+git checkout develop
+git pull origin develop
+git checkout -b feature/payment-integration
+```
+
+See `/docs/git-workflow.md` for complete Git workflow documentation.
 
 ### Development Process with Agent Checkpoints
 1. **Planning Phase**
@@ -666,26 +699,27 @@ Essential reading for understanding the project:
 
 ## Environment Variables
 
-Required for Month 1 development:
+Required environment variables (configured in Vercel):
 ```
-# Supabase
+# Supabase ✅
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_KEY=
 
-# Clerk
+# Clerk ✅
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
+CLERK_WEBHOOK_SECRET=
 
-# Stripe
+# Stripe 🔄
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 
-# OpenAI
+# OpenAI (when implementing AI features)
 OPENAI_API_KEY=
 
-# Upstash Redis
+# Upstash Redis (when implementing caching)
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 ```

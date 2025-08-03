@@ -1,4 +1,6 @@
-# PTSA+ Technical Architecture
+# PTSA Platform Technical Architecture
+
+**Note**: This document describes the long-term technical architecture vision. The current implementation (January 2025) uses a simplified approach with a modular monolith deployed to Vercel. See the "Current Implementation" section for details on what's actually built.
 
 ## Table of Contents
 1. [Architecture Overview](#architecture-overview)
@@ -57,11 +59,56 @@
 
 ### Architectural Principles
 
-1. **Microservices Architecture**: Separate services for core functionality, payments, and AI
+1. **Start Simple, Scale Smart**: Begin with modular monolith, extract services as needed
 2. **API-First Design**: All functionality exposed through well-documented APIs
-3. **Event-Driven Communication**: Asynchronous processing for non-critical operations
-4. **Cloud-Native**: Built for AWS with containerization and auto-scaling
+3. **Privacy by Default**: FERPA/COPPA compliance built into every feature
+4. **Volunteer-Friendly**: 5-minute test for all user-facing features
 5. **Security by Design**: Defense in depth with multiple security layers
+
+### Current Implementation (January 2025)
+
+The platform currently uses a simplified architecture optimized for rapid development:
+
+```
+┌─────────────────────────────────────────────────┐
+│              Client Layer                       │
+├─────────────────┬─────────────────┬──────────────┤
+│   Web App (PWA) │  Mobile Web     │  Admin View  │
+│   (Next.js 15)  │  (Responsive)   │  (Same App)  │
+└───────┬────────┴───────┬────────┴──────┬───────┘
+         │                  │                  │
+         └──────────────────┴──────────────────┘
+                            │
+                   ┌────────┴────────┐
+                   │  Vercel Edge    │
+                   │  (CDN + API)    │
+                   └────────┬────────┘
+                            │
+                   ┌────────┴────────┐
+                   │  Next.js App    │
+                   │  API Routes     │
+                   │  (Monolith)     │
+                   └────────┬────────┘
+                            │
+         ┌───────────────────┴───────────────────┐
+         │                                         │
+┌────────┴────────┐  ┌─────────────┐  ┌────────┴────────┐
+│  Clerk Auth     │  │  Supabase   │  │  Stripe API    │
+│  (Managed)      │  │  PostgreSQL │  │  (Payments)    │
+└─────────────────┘  └─────────────┘  └─────────────────┘
+```
+
+**Current Technology Choices**:
+- **Frontend**: Next.js 15.4.4 with TypeScript, shadcn/ui components, Tailwind CSS v3.4
+- **Backend**: Next.js API Routes (modular monolith approach)
+- **Database**: Supabase (managed PostgreSQL with RLS)
+- **Authentication**: Clerk (managed service with webhooks)
+- **Hosting**: Vercel (edge deployment with automatic scaling)
+- **Payments**: Stripe (in development)
+
+### Future Architecture (Months 4-6+)
+
+The architecture below represents the target state as the platform scales:
 
 ## System Components
 

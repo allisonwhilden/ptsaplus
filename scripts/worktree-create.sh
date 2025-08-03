@@ -5,16 +5,35 @@ set -e
 
 if [ $# -eq 0 ]; then
     echo "❌ Error: Please provide a feature name"
-    echo "Usage: $0 <feature-name> [base-branch]"
-    echo "Example: $0 payment-integration"
-    echo "Example: $0 member-dashboard develop"
+    echo "Usage: $0 <feature-name> [branch-type] [base-branch]"
+    echo ""
+    echo "Branch types: feature (default), bugfix, hotfix"
+    echo ""
+    echo "Examples:"
+    echo "  $0 payment-integration                    # Creates feature/payment-integration from develop"
+    echo "  $0 search-fix bugfix                      # Creates bugfix/search-fix from develop"
+    echo "  $0 critical-auth-fix hotfix main          # Creates hotfix/critical-auth-fix from main"
     exit 1
 fi
 
 FEATURE_NAME="$1"
-BASE_BRANCH="${2:-main}"
-BRANCH_NAME="feature/${FEATURE_NAME}"
-WORKTREE_PATH="../ptsaplus-${FEATURE_NAME}"
+
+# Determine branch type (default: feature)
+if [[ "$2" =~ ^(feature|bugfix|hotfix)$ ]]; then
+    BRANCH_TYPE="$2"
+    BASE_BRANCH="${3:-develop}"  # Default to develop
+else
+    BRANCH_TYPE="feature"
+    BASE_BRANCH="${2:-develop}"  # Default to develop
+fi
+
+# Hotfixes should branch from main
+if [ "$BRANCH_TYPE" = "hotfix" ] && [ -z "$3" ]; then
+    BASE_BRANCH="main"
+fi
+
+BRANCH_NAME="${BRANCH_TYPE}/${FEATURE_NAME}"
+WORKTREE_PATH="../ptsaplus-${BRANCH_TYPE}-${FEATURE_NAME}"
 
 echo "🌳 Creating new worktree for feature: $FEATURE_NAME"
 echo "📁 Worktree path: $WORKTREE_PATH"

@@ -1,23 +1,27 @@
-# PTSA+ MVP Features
+# PTSA Platform MVP Features
 
 ## Overview
-This document outlines the Minimum Viable Product (MVP) features for PTSA+ platform launch. These features represent the core functionality needed to provide immediate value to PTSAs while establishing a foundation for future growth.
+This document outlines the Minimum Viable Product (MVP) features for the PTSA platform (originally PTSA+). The project has pivoted to focus on a single PTSA implementation first. These features represent the core functionality needed to provide immediate value to our PTSA while establishing a foundation that could potentially scale to multiple PTSAs in the future.
+
+**Status as of January 2025**: Authentication, user management, and member directory features are deployed to production. Payment processing and event management are in active development.
 
 ## MVP Scope (3-Month Timeline)
 
-### 🔐 1. Authentication & User Management
+### 🔐 1. Authentication & User Management ✅ COMPLETED
 
 #### Basic Features
-- **Email/Password Registration** with verification
-- **Google/Microsoft SSO** for quick sign-up  
-- **Password Reset** via email
-- **Basic Profile Management** (name, email, phone)
-- **Family Account Linking** by email/address
+- **Clerk Authentication** integrated and deployed ✅
+- **Email/Password Registration** with verification ✅
+- **SSO Options** available through Clerk ✅
+- **Basic Profile Management** (name, email) ✅
+- **Member Registration** with privacy consent ✅
 
-#### User Roles (Simplified)
-- Admin (Full access)
-- Board Member (Elevated access)
-- Parent (Standard access)
+#### User Roles (Implemented)
+- Admin (Full platform access) ✅
+- Board (Board member access) ✅
+- Committee Chair (Committee management) ✅
+- Teacher (School staff access) ✅
+- Member (Standard parent access) ✅
 
 ### 📧 2. Communication System
 
@@ -34,14 +38,14 @@ This document outlines the Minimum Viable Product (MVP) features for PTSA+ platf
 - No approval workflows
 - Basic formatting only
 
-### 💳 3. Payment Processing
+### 💳 3. Payment Processing 🔄 IN DEVELOPMENT
 
 #### Core Functionality
-- **Membership Dues Collection** with auto-receipts
-- **Event Payment Processing** with registration
-- **Donation Acceptance** with optional anonymity
-- **Stripe Integration** for card processing
-- **Basic Financial Dashboard** showing balance and recent transactions
+- **Membership Dues Collection** with auto-receipts 🔄
+- **Event Payment Processing** with registration 📅
+- **Donation Acceptance** with optional anonymity 📅
+- **Stripe Integration** for card processing 🔄
+- **Basic Financial Dashboard** showing balance and recent transactions 📅
 
 #### Payment Methods
 - Credit/Debit Cards
@@ -63,19 +67,20 @@ This document outlines the Minimum Viable Product (MVP) features for PTSA+ platf
 - Manual check-off
 - Basic attendance tracking
 
-### 👥 5. Member Directory
+### 👥 5. Member Directory ✅ COMPLETED
 
 #### Directory Features
-- **Opt-in Listing** with privacy controls
-- **Search by Name** or child's grade
-- **Contact Information** (email/phone)
-- **Household Grouping** for families
-- **Export to CSV** for offline use
+- **Privacy-Compliant Listing** with role-based visibility ✅
+- **Search by Name** with real-time filtering ✅
+- **Contact Information** (visible to admins/board only) ✅
+- **Membership Status** tracking (active/pending/expired) ✅
+- **Export to CSV** for offline use 📅
 
-#### Privacy Controls
-- Choose what to display
-- Hide from non-members option
-- Board-only information
+#### Privacy Controls (Implemented)
+- FERPA-compliant data handling ✅
+- Role-based data visibility ✅
+- Soft delete for data retention compliance ✅
+- Privacy consent tracking ✅
 
 ### 🤖 6. Basic AI Assistant
 
@@ -97,7 +102,9 @@ This document outlines the Minimum Viable Product (MVP) features for PTSA+ platf
 - **Mobile-First Design** for parents on-the-go
 
 ### Backend
-- **Single API Service** (monolith for MVP)
+- **Next.js API Routes** (modular monolith approach) ✅
+- **Supabase PostgreSQL** with Row Level Security ✅
+- **Clerk Webhooks** for user sync ✅
 - **PostgreSQL Database** 
 - **Redis Cache** for sessions
 - **Stripe Connect** for payments

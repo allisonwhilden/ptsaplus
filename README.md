@@ -8,12 +8,17 @@ This platform provides our PTSA with a dedicated solution for managing operation
 
 ## 🚀 Current Features
 
-### Phase 1 - Foundation (In Development)
-- **Member Management**: Track member families and their information
-- **Online Payments**: Process membership dues and donations via Stripe
-- **Event Calendar**: List school events and volunteer opportunities  
-- **User Accounts**: Secure login for members with role-based access
-- **Basic Admin Tools**: Board members can manage content
+### Phase 1 - Foundation (Deployed to Production)
+- **Member Management**: Track member families and their information ✅
+- **User Accounts**: Secure login for members with role-based access ✅
+- **Privacy Controls**: FERPA/COPPA compliant data handling ✅
+- **Admin Dashboard**: Board members can manage members and roles ✅
+- **Member Directory**: View and search members with privacy-aware filtering ✅
+
+### In Active Development
+- **Online Payments**: Process membership dues via Stripe 🔄
+- **Event Calendar**: List school events and volunteer opportunities 🔄
+- **Email Communications**: Send newsletters and announcements 🔄
 
 ### Phase 2 - Enhanced Operations (Planned)
 - **Committee Management**: Organize committees and track participation
@@ -40,13 +45,13 @@ Project documentation is available in the `/docs` directory:
 
 ## 🛠️ Technology Stack
 
-### Current Stack (Simplified for Single PTSA)
-- **Frontend**: Next.js 14 with TypeScript
-- **UI Components**: shadcn/ui with Tailwind CSS v3.4
-- **Authentication**: Clerk
-- **Database**: Supabase (PostgreSQL)
-- **Payments**: Stripe
-- **Hosting**: Vercel
+### Current Stack (Production)
+- **Frontend**: Next.js 15.4.4 with TypeScript ✅
+- **UI Components**: shadcn/ui with Tailwind CSS v3.4.17 ✅
+- **Authentication**: Clerk (configured and working) ✅
+- **Database**: Supabase (PostgreSQL) with RLS ✅
+- **Payments**: Stripe (integration in progress) 🔄
+- **Hosting**: Vercel (live at https://ptsaplus.vercel.app) ✅
 
 ### Why These Choices?
 - **Next.js**: Modern React framework with great developer experience
@@ -140,21 +145,27 @@ You'll need to add these keys to `.env.local`:
 ### Completed ✅
 - Project setup and configuration
 - Database schema design (single PTSA)
-- Basic UI components and layout
-- Authentication setup
-- Core type definitions
+- UI components and layout using shadcn/ui
+- Authentication with Clerk (webhooks configured)
+- Member registration and management
+- Role-based access control (admin, board, committee_chair, member, teacher)
+- Privacy-compliant data handling
+- Member directory with search and filtering
+- Production deployment to Vercel
+- CI/CD pipeline with GitHub integration
 
 ### In Progress 🔄
-- Member registration flow
-- Payment processing integration
+- Payment processing integration (Stripe)
 - Event management system
-- Admin dashboard
+- Email communications
+- AI-assisted features
 
 ### Upcoming 📅
-- Email communications
 - Document management
-- Volunteer tracking
-- Mobile optimization
+- Volunteer hour tracking
+- Committee management
+- Mobile app (PWA)
+- Advanced analytics dashboard
 
 ## 🔒 Security & Privacy
 
@@ -168,11 +179,12 @@ We take family data seriously:
 ## 💰 Costs
 
 ### Estimated Monthly Costs (Single PTSA)
-- Hosting (Vercel): ~$20
-- Database (Supabase): ~$25
-- Authentication (Clerk): ~$25
+- Hosting (Vercel): ~$20 (currently on free tier)
+- Database (Supabase): ~$25 (currently on free tier)
+- Authentication (Clerk): ~$25 (currently on free tier)
 - Domain: ~$1.25 ($15/year)
-- **Total**: ~$71.25/month
+- **Total**: ~$71.25/month (when scaling beyond free tiers)
+- **Current**: $0/month (using free tiers during development)
 
 ### Payment Processing
 - Stripe: 2.9% + $0.30 per transaction
@@ -180,13 +192,21 @@ We take family data seriously:
 
 ## 🤝 Contributing
 
-This is currently a private project for our PTSA. Board members and authorized volunteers can request access to contribute.
+This project is open for contributions from PTSA board members and authorized volunteers.
 
-### For Board Members
+### Getting Started
 1. Request access to the repository
-2. Set up your development environment
-3. Work on assigned features
-4. Submit changes for review
+2. Follow the [Setup Guide](./SETUP.md) to configure your development environment
+3. Create a feature branch using Git worktrees: `./scripts/worktree-create.sh your-feature`
+4. Make your changes following our privacy and security guidelines
+5. Ensure all tests pass and code quality checks pass
+6. Submit a pull request with a clear description
+
+### Development Guidelines
+- **Privacy First**: All features must comply with FERPA/COPPA requirements
+- **Volunteer-Friendly**: Features must pass the "5-minute test" for usability
+- **Security**: Never commit sensitive data or API keys
+- **Testing**: Add tests for critical paths, especially payment and privacy features
 
 ## 📈 Future Possibilities
 
@@ -200,24 +220,11 @@ See [Future Scaling Guide](./docs/future-scaling-guide.md) for details.
 
 ## 🔗 Links
 
-- **Live Site**: [Deployed on Vercel](https://ptsaplus.vercel.app)
+- **Live Site**: [https://ptsaplus.vercel.app](https://ptsaplus.vercel.app) ✅
 - **Documentation**: [Setup Guide](./SETUP.md) | [Deployment Guide](./DEPLOYMENT.md)
-- **Development**: [Month 1 Plan](./docs/month-1-development-plan.md)
-
-## 🤝 Contributing
-
-1. Follow the [Setup Guide](./SETUP.md) to configure your development environment
-2. Create a feature branch using Git worktrees: `./scripts/worktree-create.sh your-feature`
-3. Make your changes following our privacy and security guidelines
-4. Ensure all tests pass and code quality checks pass
-5. Submit a pull request with a clear description
-
-### Development Guidelines
-
-- **Privacy First**: All features must comply with FERPA/COPPA requirements
-- **Volunteer-Friendly**: Features must pass the "5-minute test" for usability
-- **Security**: Never commit sensitive data or API keys
-- **Testing**: Add tests for critical paths, especially payment and privacy features
+- **Development Plan**: [Month 1 Plan](./docs/month-1-development-plan.md)
+- **Architecture**: [Technical Architecture](./docs/05-technical-architecture.md)
+- **Privacy**: [Security & Compliance](./docs/08-security-compliance.md)
 
 ## 📞 Contact
 
