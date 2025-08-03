@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { MainLayout } from '@/components/layout/main-layout'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 export default function Home() {
   return (
@@ -122,7 +122,7 @@ export default function Home() {
             Our Impact This Year
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Together, we're making a difference in our school community
+            Together, we&apos;re making a difference in our school community
           </p>
           
           <div className="grid md:grid-cols-4 gap-8 text-center">

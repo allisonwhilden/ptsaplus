@@ -59,7 +59,7 @@ export interface Payment {
   status: PaymentStatus
   payment_type: PaymentType
   description: string | null
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
   created_at: string
   updated_at: string
   user?: User
@@ -153,7 +153,7 @@ export interface Settings {
   membership_fee_individual: number // in cents
   membership_fee_family: number // in cents
   fiscal_year_start: number // month (1-12)
-  payment_settings: Record<string, any>
-  email_settings: Record<string, any>
+  payment_settings: Record<string, unknown>
+  email_settings: Record<string, unknown>
   updated_at: string
 }

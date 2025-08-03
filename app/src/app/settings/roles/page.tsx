@@ -3,11 +3,10 @@ import { redirect } from 'next/navigation'
 import { getSupabaseServiceClient } from '@/lib/supabase-server'
 import { MainLayout } from '@/components/layout/main-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { RoleAssignmentForm } from '@/components/forms/role-assignment-form'
-import { User, UserRole } from '@/types/database'
+import { UserRole } from '@/types/database'
 
 
 export default async function RolesPage() {
@@ -152,7 +151,7 @@ export default async function RolesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users?.map((user: any) => (
+                    {users?.map((user) => (
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">
                           {user.first_name} {user.last_name}

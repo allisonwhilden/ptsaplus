@@ -129,7 +129,7 @@ export function RegistrationForm({ userId }: { userId: string }) {
         })
         router.push('/dashboard')
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Registration failed',
         description: 'Please try again or contact support.',
@@ -183,7 +183,7 @@ export function RegistrationForm({ userId }: { userId: string }) {
                 <Input type="email" placeholder="jane@example.com" {...field} />
               </FormControl>
               <FormDescription>
-                We'll use this for PTSA communications
+                We&apos;ll use this for PTSA communications
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -247,7 +247,7 @@ export function RegistrationForm({ userId }: { userId: string }) {
                       I want to provide student information
                     </FormLabel>
                     <FormDescription>
-                      Check this box if you'd like to associate your child's information with your membership
+                      Check this box if you&apos;d like to associate your child&apos;s information with your membership
                     </FormDescription>
                   </div>
                 </FormItem>
@@ -318,7 +318,7 @@ export function RegistrationForm({ userId }: { userId: string }) {
                           Student Data Consent (Required)
                         </FormLabel>
                         <FormDescription className="text-xs">
-                          I consent to the collection and storage of my child's educational information in compliance with FERPA. This information will only be used for PTSA activities and will not be shared with third parties.
+                          I consent to the collection and storage of my child&apos;s educational information in compliance with FERPA. This information will only be used for PTSA activities and will not be shared with third parties.
                         </FormDescription>
                         <FormMessage />
                       </div>
@@ -343,10 +343,10 @@ export function RegistrationForm({ userId }: { userId: string }) {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  I'm interested in volunteering
+                  I&apos;m interested in volunteering
                 </FormLabel>
                 <FormDescription>
-                  We'll contact you about volunteer opportunities
+                  We&apos;ll contact you about volunteer opportunities
                 </FormDescription>
               </div>
             </FormItem>

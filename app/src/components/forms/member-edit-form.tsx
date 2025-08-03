@@ -90,7 +90,7 @@ export function MemberEditForm({ member }: MemberEditFormProps) {
       
       router.push(`/members/${member.id}`)
       router.refresh()
-    } catch (error) {
+    } catch {
       toast({
         title: 'Update failed',
         description: 'Failed to update member information.',
