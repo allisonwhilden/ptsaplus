@@ -9,21 +9,6 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 
-// Define the member type based on what we're selecting
-type MemberListItem = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  membership_type: string;
-  membership_status: string;
-  joined_at: string;
-  phone?: string;
-  student_info?: any;
-  privacy_consent_given?: boolean;
-  deleted_at: string | null;
-};
-
 export default async function MembersPage({
   searchParams,
 }: {
@@ -86,10 +71,11 @@ export default async function MembersPage({
     query = query.eq('membership_status', params.status)
   }
 
-  const { data: members, error } = await query
+  const result = await query
 
-  if (error || !members) {
-    console.error('Error fetching members:', error)
+  // Check if the query failed or returned an error
+  if (result.error || !result.data || !Array.isArray(result.data)) {
+    console.error('Error fetching members:', result.error)
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-8">
@@ -105,8 +91,8 @@ export default async function MembersPage({
     )
   }
 
-  // Type assertion to ensure TypeScript knows the shape
-  const typedMembers = members as MemberListItem[];
+  // Now we know result.data is a valid array
+  const members = result.data;
 
   const getMembershipBadgeColor = (status: string) => {
     switch (status) {
@@ -141,7 +127,7 @@ export default async function MembersPage({
           <div>
             <h1 className="text-3xl font-bold">Members</h1>
             <p className="text-muted-foreground">
-              {typedMembers.length} total members
+              {members.length} total members
             </p>
           </div>
           {isAdmin && (
@@ -202,7 +188,7 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {typedMembers.map((member) => (
+                  {members.map((member: any) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
@@ -232,7 +218,7 @@ export default async function MembersPage({
               </Table>
             </div>
 
-            {typedMembers.length === 0 && (
+            {members.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 No members found
               </div>
