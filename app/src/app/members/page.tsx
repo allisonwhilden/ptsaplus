@@ -9,6 +9,21 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 
+// Type for member data from Supabase query
+type Member = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  membership_type: string;
+  membership_status: string;
+  joined_at: string;
+  phone?: string;
+  student_info?: any;
+  privacy_consent_given?: boolean;
+  deleted_at: string | null;
+};
+
 export default async function MembersPage({
   searchParams,
 }: {
@@ -188,7 +203,7 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members.map((member: any) => (
+                  {members.map((member: Member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
