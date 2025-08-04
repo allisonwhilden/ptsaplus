@@ -9,20 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 
-// Type for member data from Supabase query
-type Member = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  membership_type: string;
-  membership_status: string;
-  joined_at: string;
-  phone?: string;
-  student_info?: unknown;
-  privacy_consent_given?: boolean;
-  deleted_at: string | null;
-};
+// Use Database types from Supabase
+import type { Database } from '@/types/supabase'
+
+type Member = Database['public']['Tables']['members']['Row']
 
 export default async function MembersPage({
   searchParams,
@@ -57,20 +47,10 @@ export default async function MembersPage({
 
   const isAdmin = userData?.role === 'admin' || userData?.role === 'board'
 
-  // Build query with data minimization - only select necessary fields
+  // Build query - select all fields, we'll filter in the UI based on permissions
   let query = supabase
     .from('members')
-    .select([
-      'id',
-      'first_name',
-      'last_name',
-      ...(isAdmin ? ['email'] : []),
-      'membership_type',
-      'membership_status',
-      'joined_at',
-      ...(isAdmin ? ['phone', 'student_info', 'privacy_consent_given'] : []),
-      'deleted_at'
-    ].join(','))
+    .select('*')
     .is('deleted_at', null) // Only show non-deleted members
     .order('joined_at', { ascending: false })
 
@@ -86,11 +66,11 @@ export default async function MembersPage({
     query = query.eq('membership_status', params.status)
   }
 
-  const result = await query
+  const { data: members, error } = await query
 
-  // Check if the query failed or returned an error
-  if (result.error || !result.data || !Array.isArray(result.data)) {
-    console.error('Error fetching members:', result.error)
+  // Check if the query failed
+  if (error || !members) {
+    console.error('Error fetching members:', error)
     return (
       <MainLayout>
         <div className="container mx-auto px-4 py-8">
@@ -105,28 +85,6 @@ export default async function MembersPage({
       </MainLayout>
     )
   }
-
-  // Now we know result.data is a valid array
-  // Additional check to ensure we have member objects, not error objects
-  if (!Array.isArray(result.data) || (result.data.length > 0 && !('id' in result.data[0]))) {
-    console.error('Invalid data format returned from query')
-    return (
-      <MainLayout>
-        <div className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="py-8">
-              <p className="text-center text-muted-foreground">
-                Error loading members. Please try again later.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </MainLayout>
-    )
-  }
-  
-  // Type assertion is now safe
-  const members = result.data as Member[];
 
   const getMembershipBadgeColor = (status: string) => {
     switch (status) {
@@ -222,12 +180,12 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members.map((member: Member) => (
+                  {members.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
                       </TableCell>
-                      {isAdmin && <TableCell>{member.email}</TableCell>}
+                      {isAdmin && <TableCell>{member.email || '-'}</TableCell>}
                       <TableCell>
                         {getMembershipTypeLabel(member.membership_type)}
                       </TableCell>
