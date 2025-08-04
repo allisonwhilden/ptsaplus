@@ -19,7 +19,7 @@ type Member = {
   membership_status: string;
   joined_at: string;
   phone?: string;
-  student_info?: any;
+  student_info?: unknown;
   privacy_consent_given?: boolean;
   deleted_at: string | null;
 };
@@ -107,7 +107,8 @@ export default async function MembersPage({
   }
 
   // Now we know result.data is a valid array
-  const members = result.data;
+  // Type assertion to ensure TypeScript knows this is Member[]
+  const members = result.data as Member[];
 
   const getMembershipBadgeColor = (status: string) => {
     switch (status) {
