@@ -95,7 +95,7 @@ export default async function DashboardPage() {
               <CardDescription>Track your volunteer activities</CardDescription>
             </CardHeader>
             <CardContent>
-              <p>Thank you for your interest in volunteering! We'll contact you about upcoming opportunities.</p>
+              <p>Thank you for your interest in volunteering! We&apos;ll contact you about upcoming opportunities.</p>
               <Button variant="outline" className="mt-4" asChild>
                 <Link href="/volunteer/dashboard">View Volunteer Dashboard</Link>
               </Button>

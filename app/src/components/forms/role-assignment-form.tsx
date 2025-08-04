@@ -67,7 +67,7 @@ export function RoleAssignmentForm({ userId, currentRole, userName }: RoleAssign
       
       router.refresh()
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       toast({
         title: 'Update failed',
         description: 'Failed to update user role.',

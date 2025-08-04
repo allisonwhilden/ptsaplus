@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { Member } from '@/types/database'
 
 
 export default async function MemberDetailPage({
@@ -220,7 +219,7 @@ export default async function MemberDetailPage({
               <Card>
                 <CardHeader>
                   <CardTitle>Administrative Actions</CardTitle>
-                  <CardDescription>Manage this member's account</CardDescription>
+                  <CardDescription>Manage this member&apos;s account</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2 flex-wrap">

@@ -8,7 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
-import { Member } from '@/types/database'
+
+// Use Database types from Supabase
+import type { Database } from '@/types/supabase'
+
+type Member = Database['public']['Tables']['members']['Row']
 
 export default async function MembersPage({
   searchParams,
@@ -43,20 +47,10 @@ export default async function MembersPage({
 
   const isAdmin = userData?.role === 'admin' || userData?.role === 'board'
 
-  // Build query with data minimization - only select necessary fields
+  // Build query - select all fields, we'll filter in the UI based on permissions
   let query = supabase
     .from('members')
-    .select(`
-      id,
-      first_name,
-      last_name,
-      ${isAdmin ? 'email,' : ''}
-      membership_type,
-      membership_status,
-      joined_at,
-      ${isAdmin ? 'phone, student_info, privacy_consent_given,' : ''}
-      deleted_at
-    `)
+    .select('*')
     .is('deleted_at', null) // Only show non-deleted members
     .order('joined_at', { ascending: false })
 
@@ -74,8 +68,22 @@ export default async function MembersPage({
 
   const { data: members, error } = await query
 
-  if (error) {
+  // Check if the query failed
+  if (error || !members) {
     console.error('Error fetching members:', error)
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-center text-muted-foreground">
+                Error loading members. Please try again later.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </MainLayout>
+    )
   }
 
   const getMembershipBadgeColor = (status: string) => {
@@ -111,7 +119,7 @@ export default async function MembersPage({
           <div>
             <h1 className="text-3xl font-bold">Members</h1>
             <p className="text-muted-foreground">
-              {members?.length || 0} total members
+              {members.length} total members
             </p>
           </div>
           {isAdmin && (
@@ -172,12 +180,12 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members?.map((member: any) => (
+                  {members.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
                       </TableCell>
-                      {isAdmin && <TableCell>{member.email}</TableCell>}
+                      {isAdmin && <TableCell>{member.email || '-'}</TableCell>}
                       <TableCell>
                         {getMembershipTypeLabel(member.membership_type)}
                       </TableCell>
@@ -202,7 +210,7 @@ export default async function MembersPage({
               </Table>
             </div>
 
-            {(!members || members.length === 0) && (
+            {members.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 No members found
               </div>

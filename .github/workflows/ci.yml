@@ -17,14 +17,14 @@ jobs:
     - name: Install pnpm
       uses: pnpm/action-setup@v4
       with:
-        version: 8
+        version: 9.0.0
         
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'pnpm'
-        cache-dependency-path: './app/pnpm-lock.yaml'
+        cache-dependency-path: 'pnpm-lock.yaml'
         
     - name: Install dependencies
       run: |
@@ -47,9 +47,11 @@ jobs:
         pnpm build
       env:
         # Mock environment variables for build
-        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://mock.supabase.co' }}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'mock-anon-key' }}
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_mock' }}
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://xyzcompany.supabase.co' }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2wiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjcyMTgyMiwiZXhwIjoxOTMyMjk3ODIyfQ.qwertyuiopasdfghjklzxcvbnm1234567890' }}
+        SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3ZXJ0eXVpb3Bhc2RmZ2hqa2wiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjE2NzIxODIyLCJleHAiOjE5MzIyOTc4MjJ9.M2d2z4SFn5C7HlJlaSLfrzuYim9nbY_XI40uWFN3hEE' }}
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuaW5zcGlyZWQucGFuZGEtODguY2xlcmsuYWNjb3VudHMuZGV2JA' }}
+        CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY || 'sk_test_mock' }}
         
     # TODO: Add tests when they're implemented
     # - name: Run tests

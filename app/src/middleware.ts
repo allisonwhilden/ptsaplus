@@ -15,13 +15,13 @@ const isProtectedRoute = createRouteMatcher([
 ])
 
 // Public routes accessible without authentication
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/about',
-  '/contact',
-  '/events', // List view only
-  '/api/public(.*)',
-])
+// const isPublicRoute = createRouteMatcher([
+//   '/',
+//   '/about',
+//   '/contact',
+//   '/events', // List view only
+//   '/api/public(.*)',
+// ])
 
 export default clerkMiddleware(async (auth, request) => {
   // Only protect routes that are explicitly marked as protected
