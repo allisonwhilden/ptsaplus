@@ -45,17 +45,17 @@ export default async function MembersPage({
   // Build query with data minimization - only select necessary fields
   let query = supabase
     .from('members')
-    .select(`
-      id,
-      first_name,
-      last_name,
-      ${isAdmin ? 'email,' : ''}
-      membership_type,
-      membership_status,
-      joined_at,
-      ${isAdmin ? 'phone, student_info, privacy_consent_given,' : ''}
-      deleted_at
-    `)
+    .select([
+      'id',
+      'first_name',
+      'last_name',
+      ...(isAdmin ? ['email'] : []),
+      'membership_type',
+      'membership_status',
+      'joined_at',
+      ...(isAdmin ? ['phone', 'student_info', 'privacy_consent_given'] : []),
+      'deleted_at'
+    ].join(','))
     .is('deleted_at', null) // Only show non-deleted members
     .order('joined_at', { ascending: false })
 
