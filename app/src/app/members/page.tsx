@@ -107,7 +107,25 @@ export default async function MembersPage({
   }
 
   // Now we know result.data is a valid array
-  // Type assertion to ensure TypeScript knows this is Member[]
+  // Additional check to ensure we have member objects, not error objects
+  if (!Array.isArray(result.data) || (result.data.length > 0 && !('id' in result.data[0]))) {
+    console.error('Invalid data format returned from query')
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-center text-muted-foreground">
+                Error loading members. Please try again later.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </MainLayout>
+    )
+  }
+  
+  // Type assertion is now safe
   const members = result.data as Member[];
 
   const getMembershipBadgeColor = (status: string) => {
