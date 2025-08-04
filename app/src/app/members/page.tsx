@@ -73,8 +73,21 @@ export default async function MembersPage({
 
   const { data: members, error } = await query
 
-  if (error) {
+  if (error || !members) {
     console.error('Error fetching members:', error)
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-center text-muted-foreground">
+                Error loading members. Please try again later.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </MainLayout>
+    )
   }
 
   const getMembershipBadgeColor = (status: string) => {
@@ -110,7 +123,7 @@ export default async function MembersPage({
           <div>
             <h1 className="text-3xl font-bold">Members</h1>
             <p className="text-muted-foreground">
-              {members?.length || 0} total members
+              {members.length} total members
             </p>
           </div>
           {isAdmin && (
@@ -171,7 +184,7 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members?.map((member) => (
+                  {members.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
@@ -201,7 +214,7 @@ export default async function MembersPage({
               </Table>
             </div>
 
-            {(!members || members.length === 0) && (
+            {members.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 No members found
               </div>
