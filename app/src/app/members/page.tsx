@@ -9,6 +9,21 @@ import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 
+// Define the member type based on what we're selecting
+type MemberListItem = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  membership_type: string;
+  membership_status: string;
+  joined_at: string;
+  phone?: string;
+  student_info?: any;
+  privacy_consent_given?: boolean;
+  deleted_at: string | null;
+};
+
 export default async function MembersPage({
   searchParams,
 }: {
@@ -71,7 +86,7 @@ export default async function MembersPage({
     query = query.eq('membership_status', params.status)
   }
 
-  const { data: members, error } = await query
+  const { data: members, error } = await query<MemberListItem>
 
   if (error || !members) {
     console.error('Error fetching members:', error)
