@@ -86,7 +86,7 @@ export default async function MembersPage({
     query = query.eq('membership_status', params.status)
   }
 
-  const { data: members, error } = await query<MemberListItem>
+  const { data: members, error } = await query
 
   if (error || !members) {
     console.error('Error fetching members:', error)
@@ -104,6 +104,9 @@ export default async function MembersPage({
       </MainLayout>
     )
   }
+
+  // Type assertion to ensure TypeScript knows the shape
+  const typedMembers = members as MemberListItem[];
 
   const getMembershipBadgeColor = (status: string) => {
     switch (status) {
@@ -138,7 +141,7 @@ export default async function MembersPage({
           <div>
             <h1 className="text-3xl font-bold">Members</h1>
             <p className="text-muted-foreground">
-              {members.length} total members
+              {typedMembers.length} total members
             </p>
           </div>
           {isAdmin && (
@@ -199,7 +202,7 @@ export default async function MembersPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members.map((member) => (
+                  {typedMembers.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
                         {member.first_name} {member.last_name}
@@ -229,7 +232,7 @@ export default async function MembersPage({
               </Table>
             </div>
 
-            {members.length === 0 && (
+            {typedMembers.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
                 No members found
               </div>
