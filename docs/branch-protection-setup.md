@@ -27,22 +27,20 @@ gh api repos/allisonwhilden/ptsaplus/branches/main/protection \
   --field "required_status_checks[strict]=true" \
   --field "required_status_checks[contexts][]=test" \
   --field "enforce_admins=true" \
-  --field "required_pull_request_reviews[required_approving_review_count]=1" \
-  --field "required_pull_request_reviews[dismiss_stale_reviews]=true" \
+  --field "required_pull_request_reviews=null" \
   --field "required_conversation_resolution=true" \
   --field "allow_force_pushes=false" \
   --field "allow_deletions=false"
 ```
 
 This configuration:
-- ✅ Requires pull request reviews (1 approver minimum)
-- ✅ Dismisses stale reviews when new commits are pushed
 - ✅ Requires status checks to pass (CI)
 - ✅ Requires branches to be up to date
 - ✅ Requires conversation resolution
 - ✅ Prevents direct pushes (even by admins)
 - ✅ Prevents force pushes
 - ✅ Prevents branch deletion
+- ❌ Does not require PR reviews (can merge your own PRs)
 
 ### Develop Branch (Integration)
 

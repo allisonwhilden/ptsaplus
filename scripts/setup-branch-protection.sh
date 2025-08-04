@@ -43,10 +43,7 @@ gh api repos/$REPO/branches/main/protection \
   --field "required_status_checks[strict]=true" \
   --field "required_status_checks[contexts][]=test" \
   --field "enforce_admins=true" \
-  --field "required_pull_request_reviews[required_approving_review_count]=1" \
-  --field "required_pull_request_reviews[dismiss_stale_reviews]=true" \
-  --field "required_pull_request_reviews[require_code_owner_reviews]=false" \
-  --field "required_pull_request_reviews[require_last_push_approval]=false" \
+  --field "required_pull_request_reviews=null" \
   --field "required_conversation_resolution=true" \
   --field "restrictions=null" \
   --field "allow_force_pushes=false" \
