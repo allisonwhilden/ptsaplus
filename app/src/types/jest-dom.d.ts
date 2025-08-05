@@ -11,7 +11,7 @@ declare global {
       toHaveValue(value: string | string[] | number): R;
       toBeChecked(): R;
       toHaveAttribute(attr: string, value?: string): R;
-      toHaveStyle(css: Record<string, any>): R;
+      toHaveStyle(css: Record<string, string | number>): R;
     }
   }
 }

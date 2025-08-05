@@ -20,7 +20,7 @@ import { formatAmountForDisplay, formatAmountForStripe } from '@/lib/stripe/clie
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface PaymentFormProps {
-  onSuccess?: () => void;
+  // Currently no props needed
 }
 
 // Component for selecting payment amount
@@ -166,7 +166,7 @@ function AmountSelector({ onAmountSelected }: { onAmountSelected: (clientSecret:
 }
 
 // Component for processing payment (wrapped in Elements)
-function PaymentForm({ amount, onSuccess }: { amount: number; onSuccess?: () => void }) {
+function PaymentForm({ amount }: { amount: number }) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -247,7 +247,7 @@ function PaymentForm({ amount, onSuccess }: { amount: number; onSuccess?: () => 
 }
 
 // Main component that orchestrates the payment flow
-export default function MembershipPaymentForm({ onSuccess }: PaymentFormProps) {
+export default function MembershipPaymentForm({}: PaymentFormProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   
@@ -278,7 +278,7 @@ export default function MembershipPaymentForm({ onSuccess }: PaymentFormProps) {
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <PaymentForm amount={paymentAmount} onSuccess={onSuccess} />
+      <PaymentForm amount={paymentAmount} />
     </Elements>
   );
 }
