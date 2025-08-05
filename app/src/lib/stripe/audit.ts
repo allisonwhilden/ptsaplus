@@ -4,7 +4,7 @@ export interface PaymentAuditLog {
   amount: number;
   paymentIntentId?: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export enum PaymentAuditEvent {
@@ -34,7 +34,7 @@ export function createAuditLog(
   userId: string,
   amount: number,
   paymentIntentId?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): PaymentAuditLog {
   return {
     event,

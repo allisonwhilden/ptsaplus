@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { stripe, constructWebhookEvent } from '@/lib/stripe/server';
+import { constructWebhookEvent } from '@/lib/stripe/server';
 import { createClient } from '@supabase/supabase-js';
 import { 
   logPaymentSucceeded, 
@@ -26,7 +26,7 @@ const supabaseAdmin = createClient(
 export const runtime = 'nodejs';
 
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-  const { userId, paymentType } = paymentIntent.metadata;
+  const { userId } = paymentIntent.metadata;
   
   try {
     // Update payment record in database

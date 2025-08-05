@@ -42,7 +42,7 @@ export default function PaymentConfirmation({
           <XCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
           <CardTitle>Payment Failed</CardTitle>
           <CardDescription>
-            We couldn't process your payment
+            We couldn&apos;t process your payment
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -113,7 +113,7 @@ export default function PaymentConfirmation({
 
         <div className="space-y-4">
           <div className="text-sm text-gray-600">
-            <p className="font-medium mb-2">What's next?</p>
+            <p className="font-medium mb-2">What&apos;s next?</p>
             <ul className="space-y-1">
               <li>• You now have full access to member benefits</li>
               <li>• Join committees and volunteer for events</li>

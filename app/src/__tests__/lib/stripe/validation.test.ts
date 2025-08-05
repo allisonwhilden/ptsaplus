@@ -4,7 +4,6 @@ import {
   validateUserId,
   validatePaymentType,
   validatePaymentParams,
-  PaymentValidationError,
 } from '@/lib/stripe/validation';
 
 describe('Payment Validation', () => {
@@ -72,8 +71,8 @@ describe('Payment Validation', () => {
     it('should reject invalid user IDs', () => {
       expect(() => validateUserId('')).toThrow('Invalid user ID');
       expect(() => validateUserId('   ')).toThrow('Invalid user ID');
-      expect(() => validateUserId(null as any)).toThrow('Invalid user ID');
-      expect(() => validateUserId(undefined as any)).toThrow('Invalid user ID');
+      expect(() => validateUserId(null as unknown as string)).toThrow('Invalid user ID');
+      expect(() => validateUserId(undefined as unknown as string)).toThrow('Invalid user ID');
     });
   });
 

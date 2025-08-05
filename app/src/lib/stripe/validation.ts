@@ -51,7 +51,7 @@ export interface ValidatedPaymentParams {
   metadata?: Record<string, string>;
 }
 
-export function validatePaymentParams(params: any): ValidatedPaymentParams {
+export function validatePaymentParams(params: unknown): ValidatedPaymentParams {
   // Validate all required fields
   if (!params || typeof params !== 'object') {
     throw new PaymentValidationError('Invalid payment parameters');

@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, Lock } from 'lucide-react';
-import { STRIPE_PAYMENT_AMOUNTS, formatAmountForDisplay, formatAmountForStripe } from '@/lib/stripe/client';
+import { formatAmountForDisplay, formatAmountForStripe } from '@/lib/stripe/client';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -237,7 +237,7 @@ function PaymentForm({ amount, onSuccess }: { amount: number; onSuccess?: () => 
               <span>Your payment info is secure and encrypted</span>
             </div>
             <p className="text-xs">
-              You'll receive an email receipt after payment
+              You&apos;ll receive an email receipt after payment
             </p>
           </div>
         </CardContent>

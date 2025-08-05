@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/webhooks/stripe/route';
-import { stripe } from '@/lib/stripe/server';
 
 // Mock dependencies
 jest.mock('@/lib/stripe/server', () => ({
@@ -25,8 +24,8 @@ jest.mock('@supabase/supabase-js', () => ({
   })),
 }));
 
-const mockConstructWebhookEvent = require('@/lib/stripe/server').constructWebhookEvent;
-const mockHeaders = require('next/headers').headers;
+const mockConstructWebhookEvent = jest.requireMock('@/lib/stripe/server').constructWebhookEvent;
+const mockHeaders = jest.requireMock('next/headers').headers;
 
 describe('POST /api/webhooks/stripe', () => {
   beforeEach(() => {
@@ -226,7 +225,7 @@ describe('POST /api/webhooks/stripe', () => {
     mockConstructWebhookEvent.mockResolvedValue(mockEvent);
 
     // Mock database error
-    const mockSupabase = require('@supabase/supabase-js').createClient();
+    const mockSupabase = jest.requireMock('@supabase/supabase-js').createClient();
     mockSupabase.from.mockReturnValue({
       update: jest.fn(() => ({
         eq: jest.fn(() => ({

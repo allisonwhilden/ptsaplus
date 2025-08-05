@@ -19,8 +19,8 @@ jest.mock('@supabase/supabase-js', () => ({
   })),
 }));
 
-const mockAuth = require('@clerk/nextjs/server').auth;
-const mockCreatePaymentIntent = require('@/lib/stripe/server').createPaymentIntent;
+const mockAuth = jest.requireMock('@clerk/nextjs/server').auth;
+const mockCreatePaymentIntent = jest.requireMock('@/lib/stripe/server').createPaymentIntent;
 import { clearRateLimitStore } from '@/lib/stripe/rate-limit';
 
 describe('POST /api/payments/create-payment-intent', () => {
