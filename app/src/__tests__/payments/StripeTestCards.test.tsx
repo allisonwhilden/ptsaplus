@@ -281,11 +281,11 @@ describe('Stripe Test Card Scenarios', () => {
       const continueButton = screen.getByRole('button', { name: /Continue with \$15.00/ });
       fireEvent.click(continueButton);
 
-      // Wait for error message to appear - the component shows generic error for network errors
+      // Wait for error message to appear - the component shows "Network error" for network failures
       await waitFor(() => {
         const alerts = screen.getAllByRole('alert');
         expect(alerts.length).toBeGreaterThan(0);
-        expect(alerts[0]).toHaveTextContent('Something went wrong');
+        expect(alerts[0]).toHaveTextContent('Network error');
       });
     });
 

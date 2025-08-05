@@ -53,16 +53,39 @@ export interface ValidatedPaymentParams {
 
 export function validatePaymentParams(params: unknown): ValidatedPaymentParams {
   // Validate all required fields
-  if (!params || typeof params !== 'object') {
+  if (!params || typeof params !== 'object' || params === null) {
     throw new PaymentValidationError('Invalid payment parameters');
   }
 
-  const { amount, userId, userEmail, paymentType, metadata = {} } = params;
+  const { amount, userId, userEmail, paymentType, metadata = {} } = params as {
+    amount: unknown;
+    userId: unknown;
+    userEmail: unknown;
+    paymentType: unknown;
+    metadata?: unknown;
+  };
 
   // Validate each field
+  if (typeof userId !== 'string') {
+    throw new PaymentValidationError('Invalid user ID');
+  }
   validateUserId(userId);
+  
+  if (typeof userEmail !== 'string') {
+    throw new PaymentValidationError('Invalid email address');
+  }
   validateEmail(userEmail);
-  validatePaymentType(paymentType);
+  
+  if (typeof paymentType !== 'string') {
+    throw new PaymentValidationError('Invalid payment type');
+  }
+  if (!validatePaymentType(paymentType)) {
+    throw new PaymentValidationError('Invalid payment type');
+  }
+  
+  if (typeof amount !== 'number') {
+    throw new PaymentValidationError('Invalid payment amount');
+  }
   validatePaymentAmount(amount, paymentType);
 
   // Validate metadata if provided
@@ -74,7 +97,7 @@ export function validatePaymentParams(params: unknown): ValidatedPaymentParams {
     amount,
     userId,
     userEmail,
-    paymentType,
-    metadata,
+    paymentType: paymentType as 'membership' | 'donation',
+    metadata: metadata as Record<string, string>,
   };
 }
