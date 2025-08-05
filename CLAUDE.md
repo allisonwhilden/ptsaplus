@@ -15,12 +15,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ✅ Member directory with privacy controls
 ✅ Production deployment to Vercel
 ✅ CI/CD pipeline with GitHub integration
+✅ **Payment processing (Stripe integration) - Completed Jan 8**
+  - Secure payment collection for membership dues ($15, $25, $50, custom)
+  - PCI DSS compliant implementation (no card data touches servers)
+  - Comprehensive security measures:
+    - Idempotency keys prevent duplicate charges
+    - Input validation with amount limits ($1-100 membership, $1-1000 donations)
+    - Rate limiting (5 req/min per user, 10 per IP)
+    - Webhook signature verification
+    - Comprehensive audit logging
+  - API Endpoints:
+    - `POST /api/payments/create-payment-intent` - Create payment for membership
+    - `POST /api/webhooks/stripe` - Handle Stripe webhook events
+  - Payment page: `/membership/pay`
+  - Guest checkout support (no authentication required)
+  - Full test coverage including Stripe test card scenarios:
+    - Success: 4242 4242 4242 4242
+    - Decline: 4000 0000 0000 0002
+    - 3D Secure: 4000 0025 0000 3155
+  - Implementation based on payment-auditor agent recommendations
 
 ### In Progress
-🔄 Payment processing (Stripe integration)
 🔄 Event management system
 🔄 Email communications
 🔄 AI-assisted features
+🔄 Payment reporting and treasurer dashboard
 
 ### When working on this project:
 1. Build on the existing foundation - authentication and member management are complete
@@ -163,6 +182,122 @@ This platform handles sensitive student and family data. For every feature:
 - Use role-based access control (RBAC) consistently
 - Follow the security guidelines in `/docs/08-security-compliance.md`
 
+## Security Implementation Patterns
+
+Based on the payment integration implementation, use these patterns for all sensitive features:
+
+### 1. Idempotency Keys for Financial Operations
+```typescript
+// Generate unique idempotency key for each operation
+const idempotencyKey = `${operationType}_${userId}_${amount}_${timestamp}`;
+
+// Use with Stripe or other payment providers
+const result = await stripe.paymentIntents.create(
+  { amount, currency: 'usd', ... },
+  { idempotencyKey }
+);
+```
+
+### 2. Rate Limiting Configuration
+```typescript
+// Configure per-user and per-IP limits
+const RATE_LIMIT_CONFIG = {
+  windowMs: 60 * 1000, // 1 minute
+  maxRequests: 5,      // per user
+  maxRequestsPerIP: 10 // per IP address
+};
+
+// Apply to sensitive endpoints
+return withRateLimit(request, handler, userId);
+```
+
+### 3. Comprehensive Audit Logging
+```typescript
+// Log all security-sensitive operations
+export function logPaymentOperation(event: {
+  type: string;
+  userId: string;
+  amount: number;
+  metadata?: Record<string, any>;
+}) {
+  console.log(JSON.stringify({
+    event: event.type,
+    userId: event.userId,
+    amount: event.amount,
+    timestamp: new Date().toISOString(),
+    metadata: event.metadata,
+    level: 'audit',
+    service: 'payment',
+    environment: process.env.NODE_ENV,
+  }));
+}
+```
+
+### 4. Secure Error Handling
+```typescript
+// Never expose internal errors to users
+export function createSecureErrorResponse(error: unknown) {
+  // Log full error internally
+  console.error('Internal error:', error);
+  
+  // Return generic message to user
+  if (error instanceof ValidationError) {
+    return { error: error.message, status: 400 };
+  }
+  
+  return { 
+    error: 'An error occurred. Please try again.',
+    status: 500 
+  };
+}
+```
+
+### 5. Input Validation with Strict Limits
+```typescript
+// Validate all user inputs with appropriate limits
+export function validatePaymentAmount(
+  amount: number, 
+  type: 'membership' | 'donation'
+): void {
+  const limits = {
+    membership: { min: 100, max: 10000 },    // $1-$100
+    donation: { min: 100, max: 100000 }      // $1-$1000
+  };
+  
+  const { min, max } = limits[type];
+  
+  if (amount < min || amount > max) {
+    throw new ValidationError(
+      `Amount must be between $${min/100} and $${max/100}`
+    );
+  }
+}
+```
+
+### 6. Webhook Security
+```typescript
+// Always verify webhook signatures
+export async function verifyWebhookSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): Promise<boolean> {
+  const event = await stripe.webhooks.constructEvent(
+    payload,
+    signature,
+    secret
+  );
+  return true; // Throws if invalid
+}
+```
+
+### When to Apply These Patterns
+- **Financial Operations**: All patterns
+- **User Data Updates**: Audit logging, validation, secure errors
+- **API Endpoints**: Rate limiting, validation
+- **Third-party Integrations**: Webhook security, idempotency
+- **Admin Actions**: Comprehensive audit logging
+
 ## Success Metrics
 
 ### User Experience Validation
@@ -210,6 +345,51 @@ When agents provide conflicting advice:
 3. **Technical excellence last** (arch-reviewer, perf-optimizer)
 
 Document conflicts and resolutions for future reference.
+
+### Agent Consultation Documentation
+
+When consulting agents, document the outcomes:
+
+#### In Code Comments
+```typescript
+// Implemented based on payment-auditor recommendations:
+// - Added idempotency keys to prevent duplicate charges
+// - Rate limiting: 5 requests/minute per user
+// - Webhook signature verification for security
+const paymentIntent = await createPaymentIntent({...});
+```
+
+#### In PR Descriptions
+```markdown
+## Agent Consultations
+- **payment-auditor**: Implemented all security recommendations
+  - ✅ Idempotency keys for payment operations
+  - ✅ Input validation with strict limits
+  - ✅ Rate limiting configuration
+  - ✅ Audit logging for all payment events
+- **volunteer-advocate**: Simplified payment flow
+  - ✅ Guest checkout option added
+  - ✅ Clear error messages for common issues
+```
+
+#### Tracking Template
+```markdown
+## Agent: [agent-name]
+**Date**: [consultation date]
+**Feature**: [feature being reviewed]
+
+### Recommendations:
+1. [First recommendation]
+2. [Second recommendation]
+
+### Implementation Status:
+- ✅ [Implemented recommendation]
+- ❌ [Not implemented - reason]
+- 🔄 [Partially implemented - details]
+
+### Notes:
+[Any additional context or decisions made]
+```
 
 ## Frontend Technology Requirements
 
@@ -407,6 +587,29 @@ pnpm test:coverage
 pnpm test:watch
 ```
 
+### Testing Best Practices
+```bash
+# Run targeted tests when debugging specific issues
+pnpm test path/to/test.test.ts
+pnpm test -t "test name pattern"
+
+# Check test results efficiently
+pnpm test 2>&1 | grep -A2 "Test Suites:"  # Quick summary
+pnpm test --verbose 2>&1 | grep "✕"       # Find failures
+
+# Debug specific test failures
+pnpm test path/to/failing.test.ts -t "specific test" --verbose
+
+# Clear test caches when tests behave unexpectedly
+jest --clearCache
+```
+
+When to use each approach:
+- Full test suite: Before committing or creating PRs
+- Targeted tests: When working on specific features
+- Test summary: Quick health check during development
+- Verbose single test: Debugging specific failures
+
 ### Testing Stack
 - **Unit Testing**: Jest + React Testing Library
 - **Integration Testing**: Jest with Supertest
@@ -602,6 +805,70 @@ Types: feat, fix, docs, style, refactor, test, chore
 6. Requires 2 approvals
 7. Squash merge to develop
 
+### Feature Completion Workflow
+When a feature is complete:
+
+1. **Run Final Checks**:
+   ```bash
+   pnpm test              # All tests must pass
+   pnpm lint:fix          # Fix any linting issues
+   pnpm type-check        # No TypeScript errors
+   ```
+
+2. **Update Documentation**:
+   - Update CLAUDE.md if feature adds new capabilities
+   - Document any new API endpoints or components
+   - Update environment variables if needed
+
+3. **Create Pull Request**:
+   ```bash
+   git push -u origin feature/your-feature
+   gh pr create --title "feat: your feature description" \
+     --body "## Summary
+     - What was implemented
+     
+     ## Agent Consultations
+     - Document all agent consultations
+     
+     ## Testing
+     - Describe test coverage"
+   ```
+
+4. **Post-Merge Tasks**:
+   - Update project status in CLAUDE.md
+   - Close related issues
+   - Plan next features based on risk validation
+
+### Example PR Description
+```markdown
+## Summary
+- Implemented Stripe payment processing for membership dues
+- Added secure payment collection with PCI DSS compliance
+- Created guest checkout flow
+
+## Agent Consultations
+- **payment-auditor**: Implemented all 7 security recommendations
+  - ✅ Idempotency keys for payment operations
+  - ✅ Input validation with strict limits
+  - ✅ Rate limiting (5/min per user, 10/min per IP)
+  - ✅ Webhook signature verification
+  - ✅ Comprehensive audit logging
+  - ✅ Secure error handling
+  - ✅ HTTPS enforcement in production
+
+## Testing
+- Unit tests: Payment validation, error handling
+- Integration tests: API endpoints, webhooks
+- Component tests: All Stripe test card scenarios
+- Coverage: 95% for payment modules
+
+## Checklist
+- [x] Tests passing
+- [x] Documentation updated
+- [x] Agent recommendations implemented
+- [x] Security review complete
+```
+
 ## Important Considerations
 
 ### Compliance Requirements
@@ -711,7 +978,7 @@ NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 CLERK_WEBHOOK_SECRET=
 
-# Stripe 🔄
+# Stripe ✅
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
