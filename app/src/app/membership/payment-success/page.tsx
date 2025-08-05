@@ -5,12 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import PaymentConfirmation from '@/components/payments/PaymentConfirmation';
 import { loadStripe } from '@stripe/stripe-js';
 
-// Force dynamic rendering to prevent build-time prerendering
-// This page uses browser-only APIs (Stripe, useSearchParams)
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
-
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<'success' | 'failed' | 'processing'>('processing');
