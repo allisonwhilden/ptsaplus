@@ -54,9 +54,7 @@ describe('Stripe Test Card Scenarios', () => {
     });
 
     it('should process payment successfully with test card 4242 4242 4242 4242', async () => {
-      const onSuccess = jest.fn();
-      
-      render(<MembershipPaymentForm onSuccess={onSuccess} />);
+      render(<MembershipPaymentForm />);
 
       // Select $15 membership
       const basicMembership = screen.getByLabelText(/Basic Membership - \$15/);
@@ -95,9 +93,7 @@ describe('Stripe Test Card Scenarios', () => {
     });
 
     it('should handle 3D Secure authentication with card 4000 0025 0000 3155', async () => {
-      const onSuccess = jest.fn();
-      
-      render(<MembershipPaymentForm onSuccess={onSuccess} />);
+      render(<MembershipPaymentForm />);
 
       // Select custom amount
       const customOption = screen.getByLabelText(/Choose your amount/);

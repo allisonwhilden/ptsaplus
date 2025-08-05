@@ -19,10 +19,6 @@ import { formatAmountForDisplay, formatAmountForStripe } from '@/lib/stripe/clie
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-interface PaymentFormProps {
-  // Currently no props needed
-}
-
 // Component for selecting payment amount
 function AmountSelector({ onAmountSelected }: { onAmountSelected: (clientSecret: string, amount: number) => void }) {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -247,7 +243,7 @@ function PaymentForm({ amount }: { amount: number }) {
 }
 
 // Main component that orchestrates the payment flow
-export default function MembershipPaymentForm({}: PaymentFormProps) {
+export default function MembershipPaymentForm() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   
