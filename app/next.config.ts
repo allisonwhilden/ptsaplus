@@ -23,7 +23,10 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-tabs",
       "@radix-ui/react-toast",
       "@clerk/nextjs",
-      "@supabase/supabase-js"
+      "@supabase/supabase-js",
+      "@stripe/react-stripe-js",
+      "@stripe/stripe-js",
+      "lucide-react"
     ],
     
     // Speed up builds
