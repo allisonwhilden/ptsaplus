@@ -92,7 +92,7 @@ export default async function EventPage({ params }: PageProps) {
   }
   
   // Transform volunteer slots
-  const volunteerSlotsWithCounts = event.volunteer_slots?.map(slot => ({
+  const volunteerSlotsWithCounts = event.volunteer_slots?.map((slot: any) => ({
     ...slot,
     total_signups: slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0),
     available_spots: slot.quantity - slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0),
@@ -112,7 +112,7 @@ export default async function EventPage({ params }: PageProps) {
   
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
-      <EventDetails event={eventDetails} userId={userId} />
+      <EventDetails event={eventDetails} userId={userId || undefined} />
     </div>
   );
 }

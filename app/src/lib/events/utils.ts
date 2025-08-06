@@ -179,13 +179,14 @@ export function getGoogleCalendarUrl(event: Event): string {
     ? event.location_details.virtual_link 
     : event.location_details.address || '';
   
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: event.title,
-    dates: `${formatGoogleDate(start)}/${formatGoogleDate(end)}`,
-    details: event.description || '',
-    location: location,
-  });
+  const params = new URLSearchParams();
+  params.append('action', 'TEMPLATE');
+  params.append('text', event.title);
+  params.append('dates', `${formatGoogleDate(start)}/${formatGoogleDate(end)}`);
+  params.append('details', event.description || '');
+  if (location) {
+    params.append('location', location);
+  }
   
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }

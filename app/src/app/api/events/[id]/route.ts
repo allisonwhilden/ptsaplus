@@ -87,10 +87,10 @@ export async function GET(
     }
     
     // Transform volunteer slots
-    const volunteerSlotsWithCounts = event.volunteer_slots?.map(slot => ({
+    const volunteerSlotsWithCounts = event.volunteer_slots?.map((slot: any) => ({
       ...slot,
-      total_signups: slot.signups.reduce((sum, signup) => sum + signup.quantity, 0),
-      available_spots: slot.quantity - slot.signups.reduce((sum, signup) => sum + signup.quantity, 0),
+      total_signups: slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0),
+      available_spots: slot.quantity - slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0),
     })) || [];
     
     // Build event details response

@@ -60,13 +60,13 @@ export async function GET(
     }
     
     // Transform slots to include counts
-    const slotsWithCounts = slots.map(slot => {
-      const totalSignups = slot.signups.reduce((sum, signup) => sum + signup.quantity, 0);
+    const slotsWithCounts = slots.map((slot: any) => {
+      const totalSignups = slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0);
       return {
         ...slot,
         total_signups: totalSignups,
         available_spots: slot.quantity - totalSignups,
-        signups: slot.signups.map(signup => ({
+        signups: slot.signups.map((signup: any) => ({
           ...signup,
           volunteer_name: `${signup.member.first_name} ${signup.member.last_name}`,
           volunteer_email: signup.member.email,

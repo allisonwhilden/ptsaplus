@@ -416,6 +416,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
                           type="number" 
                           placeholder="Leave blank for unlimited"
                           {...field}
+                          value={field.value ?? ''}
                           onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                         />
                       </FormControl>
