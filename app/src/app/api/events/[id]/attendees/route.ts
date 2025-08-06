@@ -9,13 +9,10 @@ import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/lib/supabase-server';
 import { canUserViewAttendees } from '@/lib/events/validation';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { userId } = await auth();
     
@@ -26,7 +23,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
     
-    const eventId = params.id;
+    const { id: eventId } = await params;
     if (!eventId) {
       return NextResponse.json(
         { error: 'Event ID is required' },

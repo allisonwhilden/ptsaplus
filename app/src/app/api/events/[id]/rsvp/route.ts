@@ -13,13 +13,10 @@ import { validateCapacity, validateGuestCount, canUserViewEvent } from '@/lib/ev
 import { RSVPRequest } from '@/lib/events/types';
 import { z } from 'zod';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { userId } = await auth();
     
@@ -30,7 +27,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
     
-    const eventId = params.id;
+    const { id: eventId } = await params;
     if (!eventId) {
       return NextResponse.json(
         { error: 'Event ID is required' },
@@ -176,7 +173,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid RSVP data', details: error.errors },
+        { error: 'Invalid RSVP data', details: error.issues },
         { status: 400 }
       );
     }
@@ -189,7 +186,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { userId } = await auth();
     
@@ -200,7 +200,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
     
-    const eventId = params.id;
+    const { id: eventId } = await params;
     if (!eventId) {
       return NextResponse.json(
         { error: 'Event ID is required' },

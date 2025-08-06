@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function EventPage({ params }: PageProps) {
   const { userId } = await auth();
+  const { id: eventId } = await params;
   const supabase = await createClient();
   
   // Get user role if authenticated

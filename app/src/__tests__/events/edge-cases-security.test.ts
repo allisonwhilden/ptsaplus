@@ -380,7 +380,7 @@ describe('Event Management Edge Cases & Security', () => {
         
         if (!result.success) {
           // Check that error messages don't contain sensitive info
-          const errorMessages = result.error.errors.map(e => e.message).join(' ');
+          const errorMessages = result.error.issues.map((e: any) => e.message).join(' ');
           expect(errorMessages).not.toContain('database');
           expect(errorMessages).not.toContain('admin');
           expect(errorMessages).not.toContain('secret');
@@ -452,7 +452,7 @@ describe('Event Management Edge Cases & Security', () => {
         expect(result.success).toBe(false);
         
         if (!result.success) {
-          const hasTimeError = result.error.errors.some(e => 
+          const hasTimeError = result.error.issues.some((e: any) => 
             e.message.includes('End time must be after start time')
           );
           expect(hasTimeError).toBe(true);

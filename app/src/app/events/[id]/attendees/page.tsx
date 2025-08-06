@@ -41,7 +41,7 @@ export default async function AttendeesPage({ params }: PageProps) {
   const { data: event } = await supabase
     .from('events')
     .select('id, title, created_by, start_time')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
   
   if (!event) {
@@ -56,7 +56,7 @@ export default async function AttendeesPage({ params }: PageProps) {
     .single();
   
   if (!canUserViewAttendees(event.created_by, userId, member?.role)) {
-    redirect(`/events/${params.id}`);
+    redirect(`/events/${id}`);
   }
   
   // Get attendees
@@ -72,7 +72,7 @@ export default async function AttendeesPage({ params }: PageProps) {
         phone
       )
     `)
-    .eq('event_id', params.id)
+    .eq('event_id', id)
     .eq('status', 'attending')
     .order('created_at', { ascending: true });
   
@@ -114,7 +114,7 @@ export default async function AttendeesPage({ params }: PageProps) {
     <div className="container max-w-6xl mx-auto py-8 px-4">
       <div className="mb-6">
         <Button variant="ghost" asChild>
-          <Link href={`/events/${params.id}`}>
+          <Link href={`/events/${id}`}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Event
           </Link>

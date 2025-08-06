@@ -12,9 +12,9 @@ import { EventForm } from '@/components/events/EventForm';
 import { canUserEditEvent } from '@/lib/events/validation';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export const metadata: Metadata = {
@@ -24,9 +24,10 @@ export const metadata: Metadata = {
 
 export default async function EditEventPage({ params }: PageProps) {
   const { userId } = await auth();
+  const { id } = await params;
   
   if (!userId) {
-    redirect(`/sign-in?redirect_url=/events/${params.id}/edit`);
+    redirect(`/sign-in?redirect_url=/events/${id}/edit`);
   }
   
   const supabase = await createClient();
@@ -35,7 +36,7 @@ export default async function EditEventPage({ params }: PageProps) {
   const { data: event } = await supabase
     .from('events')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
   
   if (!event) {
@@ -50,7 +51,7 @@ export default async function EditEventPage({ params }: PageProps) {
     .single();
   
   if (!canUserEditEvent(event.created_by, userId, member?.role)) {
-    redirect(`/events/${params.id}`);
+    redirect(`/events/${id}`);
   }
   
   return (
