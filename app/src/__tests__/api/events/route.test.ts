@@ -9,6 +9,7 @@ import { GET, POST } from '@/app/api/events/route';
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/lib/supabase-server';
+import { createMockAuth } from '@/__tests__/utils/auth-mocks';
 
 // Mock dependencies
 jest.mock('@clerk/nextjs/server');
@@ -40,6 +41,7 @@ describe('/api/events', () => {
       modifySelect: jest.fn().mockReturnThis(),
     };
 
+    // @ts-ignore - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
@@ -68,9 +70,9 @@ describe('/api/events', () => {
     ];
 
     it('should return public events for unauthenticated users', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
-      mockSupabase.eq.mockImplementation((field, value) => {
+      mockSupabase.eq.mockImplementation((field: string, value: any) => {
         if (field === 'visibility' && value === 'public') {
           return mockSupabase;
         }
@@ -98,9 +100,9 @@ describe('/api/events', () => {
     });
 
     it('should return member and public events for authenticated members', async () => {
-      mockAuth.mockResolvedValue({ userId: 'user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'member' } });
-      mockSupabase.in.mockImplementation((field, values) => {
+      mockSupabase.in.mockImplementation((field: string, values: any[]) => {
         if (field === 'visibility' && values.includes('members')) {
           return mockSupabase;
         }
@@ -127,7 +129,7 @@ describe('/api/events', () => {
     });
 
     it('should return all events for admin users', async () => {
-      mockAuth.mockResolvedValue({ userId: 'admin-123' });
+      mockAuth.mockResolvedValue(createMockAuth('admin-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'admin' } });
 
       mockSupabase.select.mockImplementation(() => {
@@ -151,7 +153,7 @@ describe('/api/events', () => {
     });
 
     it('should apply filtering by event type', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       const request = new NextRequest('http://localhost:3000/api/events?type=meeting');
@@ -161,7 +163,7 @@ describe('/api/events', () => {
     });
 
     it('should apply date range filtering', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       const startDate = '2025-08-01T00:00:00Z';
@@ -174,7 +176,7 @@ describe('/api/events', () => {
     });
 
     it('should apply search filtering', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       const searchTerm = 'meeting';
@@ -185,7 +187,7 @@ describe('/api/events', () => {
     });
 
     it('should apply pagination', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       const request = new NextRequest('http://localhost:3000/api/events?limit=10&offset=20');
@@ -195,7 +197,7 @@ describe('/api/events', () => {
     });
 
     it('should include user RSVP data for authenticated users', async () => {
-      mockAuth.mockResolvedValue({ userId: 'user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'member' } });
       
       const mockRsvps = [
@@ -215,7 +217,7 @@ describe('/api/events', () => {
       // Mock the RSVPs query - need to set up a different response for the RSVP query
       let callCount = 0;
       const originalSelect = mockSupabase.select;
-      mockSupabase.select.mockImplementation((fields) => {
+      mockSupabase.select.mockImplementation((fields: string) => {
         callCount++;
         if (callCount === 1) {
           // First call is for events
@@ -244,7 +246,7 @@ describe('/api/events', () => {
     });
 
     it('should calculate available spots correctly', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       mockSupabase.select.mockImplementation(() => {
@@ -267,7 +269,7 @@ describe('/api/events', () => {
     });
 
     it('should handle invalid query parameters', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
 
       const request = new NextRequest('http://localhost:3000/api/events?limit=invalid');
       
@@ -284,7 +286,7 @@ describe('/api/events', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
       mockSupabase.select.mockImplementation(() => {
         mockSupabase.resolve = () => Promise.resolve({
@@ -325,7 +327,7 @@ describe('/api/events', () => {
     };
 
     it('should create event successfully for board members', async () => {
-      mockAuth.mockResolvedValue({ userId: 'board-user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('board-user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'board' } });
       
       const createdEvent = { id: 'new-event-123', ...validEventData.event };
@@ -359,7 +361,7 @@ describe('/api/events', () => {
     });
 
     it('should create event successfully for admin users', async () => {
-      mockAuth.mockResolvedValue({ userId: 'admin-123' });
+      mockAuth.mockResolvedValue(createMockAuth('admin-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'admin' } });
       
       const createdEvent = { id: 'new-event-456', ...validEventData.event };
@@ -383,7 +385,7 @@ describe('/api/events', () => {
     });
 
     it('should reject event creation for regular members', async () => {
-      mockAuth.mockResolvedValue({ userId: 'member-123' });
+      mockAuth.mockResolvedValue(createMockAuth('member-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'member' } });
 
       const request = new NextRequest('http://localhost:3000/api/events', {
@@ -400,7 +402,7 @@ describe('/api/events', () => {
     });
 
     it('should reject event creation for unauthenticated users', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
 
       const request = new NextRequest('http://localhost:3000/api/events', {
         method: 'POST',
@@ -416,7 +418,7 @@ describe('/api/events', () => {
     });
 
     it('should reject event creation for non-registered users', async () => {
-      mockAuth.mockResolvedValue({ userId: 'unknown-user' });
+      mockAuth.mockResolvedValue(createMockAuth('unknown-user'));
       mockSupabase.single.mockResolvedValue({ data: null }); // User not found in members table
 
       const request = new NextRequest('http://localhost:3000/api/events', {
@@ -433,7 +435,7 @@ describe('/api/events', () => {
     });
 
     it('should create volunteer slots with event', async () => {
-      mockAuth.mockResolvedValue({ userId: 'board-user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('board-user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'board' } });
       
       const eventWithSlots = {
@@ -448,7 +450,7 @@ describe('/api/events', () => {
       
       // Mock event creation
       let insertCallCount = 0;
-      mockSupabase.insert.mockImplementation((data) => {
+      mockSupabase.insert.mockImplementation((data: any) => {
         insertCallCount++;
         if (insertCallCount === 1) {
           // Event creation
@@ -490,7 +492,7 @@ describe('/api/events', () => {
     });
 
     it('should validate event data', async () => {
-      mockAuth.mockResolvedValue({ userId: 'board-user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('board-user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'board' } });
 
       const invalidEventData = {
@@ -527,7 +529,7 @@ describe('/api/events', () => {
     });
 
     it('should handle database errors during event creation', async () => {
-      mockAuth.mockResolvedValue({ userId: 'board-user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('board-user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'board' } });
       
       mockSupabase.insert.mockImplementation(() => {
@@ -552,7 +554,7 @@ describe('/api/events', () => {
     });
 
     it('should handle malformed JSON', async () => {
-      mockAuth.mockResolvedValue({ userId: 'board-user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('board-user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'board' } });
 
       const request = new NextRequest('http://localhost:3000/api/events', {
@@ -573,7 +575,7 @@ describe('/api/events', () => {
 
   describe('Edge Cases and Security', () => {
     it('should prevent SQL injection in search parameters', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       const maliciousSearch = "'; DROP TABLE events; --";
@@ -586,7 +588,7 @@ describe('/api/events', () => {
     });
 
     it('should handle very large pagination offsets', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
 
       const request = new NextRequest('http://localhost:3000/api/events?offset=999999&limit=100');
@@ -601,9 +603,9 @@ describe('/api/events', () => {
       mockAuth.mockImplementation(() => {
         authCallCount++;
         if (authCallCount === 1) {
-          return Promise.resolve({ userId: 'user-123' });
+          return Promise.resolve(createMockAuth('user-123'));
         } else {
-          return Promise.resolve({ userId: null });
+          return Promise.resolve(createMockAuth(null));
         }
       });
 
@@ -617,7 +619,7 @@ describe('/api/events', () => {
     });
 
     it('should limit search query length to prevent abuse', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
 
       const longSearch = 'a'.repeat(101); // Over 100 character limit
       const request = new NextRequest(`http://localhost:3000/api/events?search=${longSearch}`);

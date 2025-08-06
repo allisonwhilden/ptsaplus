@@ -9,6 +9,7 @@ import { POST, DELETE } from '@/app/api/events/[id]/rsvp/route';
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/lib/supabase-server';
+import { createMockAuth } from '@/__tests__/utils/auth-mocks';
 
 // Mock dependencies
 jest.mock('@clerk/nextjs/server');
@@ -37,6 +38,7 @@ describe('/api/events/[id]/rsvp', () => {
       single: jest.fn().mockReturnThis(),
     };
 
+    // @ts-ignore - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
@@ -60,7 +62,7 @@ describe('/api/events/[id]/rsvp', () => {
     };
 
     beforeEach(() => {
-      mockAuth.mockResolvedValue({ userId });
+      mockAuth.mockResolvedValue(createMockAuth(userId));
       
       // Mock member lookup
       let selectCallCount = 0;
@@ -105,7 +107,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -163,7 +165,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -173,7 +175,7 @@ describe('/api/events/[id]/rsvp', () => {
     });
 
     it('should reject RSVP from unauthenticated users', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
 
       const request = new NextRequest(`http://localhost:3000/api/events/${eventId}/rsvp`, {
         method: 'POST',
@@ -181,7 +183,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(401);
       const data = await response.json();
@@ -199,7 +201,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(403);
       const data = await response.json();
@@ -223,7 +225,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(404);
       const data = await response.json();
@@ -249,7 +251,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(403);
       const data = await response.json();
@@ -275,7 +277,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -301,7 +303,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -331,7 +333,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -347,7 +349,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -365,7 +367,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -414,7 +416,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(200); // Should succeed as it exactly reaches capacity
     });
@@ -455,7 +457,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(200);
     });
@@ -474,7 +476,7 @@ describe('/api/events/[id]/rsvp', () => {
       });
 
       try {
-        const response = await POST(request, { params: { id: eventId } });
+        const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
         expect(response.status).toBe(400);
         
         const data = await response.json();
@@ -503,7 +505,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(500);
       const data = await response.json();
@@ -513,7 +515,7 @@ describe('/api/events/[id]/rsvp', () => {
 
   describe('DELETE /api/events/[id]/rsvp', () => {
     beforeEach(() => {
-      mockAuth.mockResolvedValue({ userId });
+      mockAuth.mockResolvedValue(createMockAuth(userId));
     });
 
     it('should delete RSVP successfully', async () => {
@@ -525,7 +527,7 @@ describe('/api/events/[id]/rsvp', () => {
         method: 'DELETE',
       });
 
-      const response = await DELETE(request, { params: { id: eventId } });
+      const response = await DELETE(request, { params: Promise.resolve({ id: eventId }) });
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -538,13 +540,13 @@ describe('/api/events/[id]/rsvp', () => {
     });
 
     it('should reject deletion from unauthenticated users', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue(createMockAuth(null));
 
       const request = new NextRequest(`http://localhost:3000/api/events/${eventId}/rsvp`, {
         method: 'DELETE',
       });
 
-      const response = await DELETE(request, { params: { id: eventId } });
+      const response = await DELETE(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(401);
       const data = await response.json();
@@ -556,7 +558,7 @@ describe('/api/events/[id]/rsvp', () => {
         method: 'DELETE',
       });
 
-      const response = await DELETE(request, { params: { id: '' } });
+      const response = await DELETE(request, { params: Promise.resolve({ id: '' }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -572,7 +574,7 @@ describe('/api/events/[id]/rsvp', () => {
         method: 'DELETE',
       });
 
-      const response = await DELETE(request, { params: { id: eventId } });
+      const response = await DELETE(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(500);
       const data = await response.json();
@@ -589,7 +591,7 @@ describe('/api/events/[id]/rsvp', () => {
         method: 'DELETE',
       });
 
-      const response = await DELETE(request, { params: { id: eventId } });
+      const response = await DELETE(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -611,7 +613,7 @@ describe('/api/events/[id]/rsvp', () => {
     };
 
     it('should handle race condition when multiple users RSVP simultaneously', async () => {
-      mockAuth.mockResolvedValue({ userId: 'first-user' });
+      mockAuth.mockResolvedValue(createMockAuth('first-user'));
       
       let selectCallCount = 0;
       mockSupabase.single.mockImplementation(() => {
@@ -634,7 +636,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(400);
       const data = await response.json();
@@ -642,7 +644,7 @@ describe('/api/events/[id]/rsvp', () => {
     });
 
     it('should handle capacity validation for the last available spot', async () => {
-      mockAuth.mockResolvedValue({ userId });
+      mockAuth.mockResolvedValue(createMockAuth(userId));
       
       let selectCallCount = 0;
       mockSupabase.single.mockImplementation(() => {
@@ -678,13 +680,13 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(200);
     });
 
     it('should handle user changing from not_attending to attending near capacity', async () => {
-      mockAuth.mockResolvedValue({ userId });
+      mockAuth.mockResolvedValue(createMockAuth(userId));
       
       const existingNotAttendingRsvp = {
         id: 'existing-rsvp',
@@ -727,7 +729,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(200);
     });
@@ -735,7 +737,7 @@ describe('/api/events/[id]/rsvp', () => {
 
   describe('Privacy and Security Edge Cases', () => {
     it('should prevent RSVP manipulation via parameter tampering', async () => {
-      mockAuth.mockResolvedValue({ userId: 'user-123' });
+      mockAuth.mockResolvedValue(createMockAuth('user-123'));
       
       // Try to RSVP for a different event than specified in URL
       const maliciousRsvp = {
@@ -768,7 +770,7 @@ describe('/api/events/[id]/rsvp', () => {
         attending_count: [{ count: 3 }],
       };
 
-      mockAuth.mockResolvedValue({ userId });
+      mockAuth.mockResolvedValue(createMockAuth(userId));
       
       let selectCallCount = 0;
       mockSupabase.single.mockImplementation(() => {
@@ -788,7 +790,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(403);
       const data = await response.json();
@@ -807,7 +809,7 @@ describe('/api/events/[id]/rsvp', () => {
         attending_count: [{ count: 3 }],
       };
 
-      mockAuth.mockResolvedValue({ userId });
+      mockAuth.mockResolvedValue(createMockAuth(userId));
       
       let selectCallCount = 0;
       mockSupabase.single.mockImplementation(() => {
@@ -842,7 +844,7 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      const response = await POST(request, { params: { id: eventId } });
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
 
       expect(response.status).toBe(200);
     });

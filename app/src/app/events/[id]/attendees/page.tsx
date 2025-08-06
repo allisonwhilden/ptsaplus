@@ -30,9 +30,10 @@ export const metadata: Metadata = {
 
 export default async function AttendeesPage({ params }: PageProps) {
   const { userId } = await auth();
+  const { id } = await params;
   
   if (!userId) {
-    redirect(`/sign-in?redirect_url=/events/${params.id}/attendees`);
+    redirect(`/sign-in?redirect_url=/events/${id}/attendees`);
   }
   
   const supabase = await createClient();

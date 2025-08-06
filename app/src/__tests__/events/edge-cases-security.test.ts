@@ -48,6 +48,7 @@ describe('Event Management Edge Cases & Security', () => {
       single: jest.fn().mockReturnThis(),
     };
 
+    // @ts-ignore - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
