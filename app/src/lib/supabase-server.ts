@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
 
 export function getSupabaseServiceClient() {
@@ -9,5 +9,8 @@ export function getSupabaseServiceClient() {
     throw new Error('Missing Supabase environment variables')
   }
 
-  return createClient<Database>(supabaseUrl, supabaseServiceKey)
+  return createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey)
 }
+
+// Alias for the event system (returns the same service client)
+export const createClient = getSupabaseServiceClient
