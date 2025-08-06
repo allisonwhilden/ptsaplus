@@ -372,7 +372,7 @@ cd platform
 pnpm install
 
 # Copy environment variables
-cp .env.example .env.local
+cp app/.env.example app/.env.local
 
 # Start local services
 docker-compose up -d
