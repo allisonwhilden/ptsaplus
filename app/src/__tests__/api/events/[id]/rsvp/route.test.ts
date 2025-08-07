@@ -48,8 +48,9 @@ describe('/api/events/[id]/rsvp', () => {
       single: jest.fn().mockReturnThis(),
     };
 
+    // Mock createClient to return the mock Supabase client
     // @ts-expect-error - Mock typing for tests
-    mockCreateClient.mockResolvedValue(mockSupabase);
+    mockCreateClient.mockImplementation(async () => mockSupabase);
   });
 
   describe('POST /api/events/[id]/rsvp', () => {
