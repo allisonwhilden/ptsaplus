@@ -10,6 +10,7 @@ import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/lib/supabase-server';
 import { createMockAuth } from '@/__tests__/utils/auth-mocks';
+import { setupSupabaseMock } from '@/__tests__/utils/setup-mocks';
 
 // Mock dependencies
 jest.mock('@clerk/nextjs/server');
@@ -89,21 +90,21 @@ describe('/api/events', () => {
     it('should return public events for unauthenticated users', async () => {
       mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
-      mockSupabase.eq.mockImplementation((field: string, value: unknown) => {
-        if (field === 'visibility' && value === 'public') {
-          return mockSupabase;
-        }
-        return mockSupabase;
-      });
-
+      
       const publicEvents = mockEvents.filter(e => e.visibility === 'public');
-      mockSupabase.select.mockImplementation(() => {
-        mockSupabase.resolve = () => Promise.resolve({
-          data: publicEvents,
-          error: null,
-          count: publicEvents.length,
-        });
-        return mockSupabase;
+      
+      // Setup the mock chain to return data properly
+      mockSupabase.select.mockReturnValue(mockSupabase);
+      mockSupabase.eq.mockReturnValue(mockSupabase);
+      mockSupabase.in.mockReturnValue(mockSupabase);
+      mockSupabase.gte.mockReturnValue(mockSupabase);
+      mockSupabase.lte.mockReturnValue(mockSupabase);
+      mockSupabase.or.mockReturnValue(mockSupabase);
+      mockSupabase.order.mockReturnValue(mockSupabase);
+      mockSupabase.range.mockResolvedValue({
+        data: publicEvents,
+        error: null,
+        count: publicEvents.length,
       });
 
       const request = new NextRequest('http://localhost:3000/api/events');
@@ -119,21 +120,21 @@ describe('/api/events', () => {
     it('should return member and public events for authenticated members', async () => {
       mockAuth.mockResolvedValue(createMockAuth('user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'member' } });
-      mockSupabase.in.mockImplementation((field: string, values: unknown[]) => {
-        if (field === 'visibility' && values.includes('members')) {
-          return mockSupabase;
-        }
-        return mockSupabase;
-      });
-
+      
       const memberEvents = mockEvents.filter(e => ['public', 'members'].includes(e.visibility));
-      mockSupabase.select.mockImplementation(() => {
-        mockSupabase.resolve = () => Promise.resolve({
-          data: memberEvents,
-          error: null,
-          count: memberEvents.length,
-        });
-        return mockSupabase;
+      
+      // Setup the mock chain to return data properly
+      mockSupabase.select.mockReturnValue(mockSupabase);
+      mockSupabase.eq.mockReturnValue(mockSupabase);
+      mockSupabase.in.mockReturnValue(mockSupabase);
+      mockSupabase.gte.mockReturnValue(mockSupabase);
+      mockSupabase.lte.mockReturnValue(mockSupabase);
+      mockSupabase.or.mockReturnValue(mockSupabase);
+      mockSupabase.order.mockReturnValue(mockSupabase);
+      mockSupabase.range.mockResolvedValue({
+        data: memberEvents,
+        error: null,
+        count: memberEvents.length,
       });
 
       const request = new NextRequest('http://localhost:3000/api/events');
@@ -149,14 +150,8 @@ describe('/api/events', () => {
       mockAuth.mockResolvedValue(createMockAuth('admin-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'admin' } });
 
-      mockSupabase.select.mockImplementation(() => {
-        mockSupabase.resolve = () => Promise.resolve({
-          data: mockEvents,
-          error: null,
-          count: mockEvents.length,
-        });
-        return mockSupabase;
-      });
+      // Setup the mock chain to return data properly
+      setupSupabaseMock(mockSupabase, mockEvents);
 
       const request = new NextRequest('http://localhost:3000/api/events');
       const response = await GET(request);

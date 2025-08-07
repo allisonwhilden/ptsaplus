@@ -37,7 +37,7 @@ describe('/api/events/[id]/rsvp', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock Supabase client
+    // Mock Supabase client with proper chaining
     mockSupabase = {
       from: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
@@ -47,6 +47,13 @@ describe('/api/events/[id]/rsvp', () => {
       eq: jest.fn().mockReturnThis(),
       single: jest.fn().mockReturnThis(),
     };
+    
+    // Ensure delete chain works properly
+    mockSupabase.delete.mockImplementation(() => {
+      return {
+        eq: jest.fn().mockResolvedValue({ data: null, error: null }),
+      };
+    });
 
     // Mock createClient to return the mock Supabase client
     // @ts-expect-error - Mock typing for tests

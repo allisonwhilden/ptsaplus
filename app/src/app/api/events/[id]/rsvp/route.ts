@@ -234,7 +234,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error in DELETE /api/events/[id]/rsvp:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to delete RSVP' },
       { status: 500 }
     );
   }
