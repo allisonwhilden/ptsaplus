@@ -55,9 +55,10 @@ echo "Creating worktree at: $WORKTREE_PATH"
 git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
 
 # Copy environment files
-if [ -f .env.local ]; then
-  cp .env.local "$WORKTREE_PATH/"
-  echo "✓ Copied .env.local"
+if [ -f app/.env.local ]; then
+  mkdir -p "$WORKTREE_PATH/app"
+  cp app/.env.local "$WORKTREE_PATH/app/"
+  echo "✓ Copied app/.env.local"
 fi
 
 # Install dependencies
@@ -178,7 +179,7 @@ claude --workspace .
 
 1. **Naming Convention**: Use descriptive branch names like `feature/`, `fix/`, `experiment/`
 2. **Port Management**: Main branch uses 3000, worktrees use 3001-3010
-3. **Environment Files**: Always copy `.env.local` to new worktrees
+3. **Environment Files**: Always copy `app/.env.local` to new worktrees
 4. **Cleanup**: Remove worktrees when features are merged
 5. **Parallel Work**: Ideal for testing different approaches simultaneously
 

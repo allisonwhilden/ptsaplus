@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { escapeSqlLikePattern } from '@/lib/utils'
 import Link from 'next/link'
 
 // Use Database types from Supabase
@@ -54,10 +55,11 @@ export default async function MembersPage({
     .is('deleted_at', null) // Only show non-deleted members
     .order('joined_at', { ascending: false })
 
-  // Apply search filter
+  // Apply search filter with SQL injection protection
   if (params.search) {
+    const escapedSearch = escapeSqlLikePattern(params.search)
     query = query.or(
-      `first_name.ilike.%${params.search}%,last_name.ilike.%${params.search}%,email.ilike.%${params.search}%`
+      `first_name.ilike.%${escapedSearch}%,last_name.ilike.%${escapedSearch}%,email.ilike.%${escapedSearch}%`
     )
   }
 

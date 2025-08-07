@@ -66,6 +66,18 @@ git worktree add -b "$BRANCH_NAME" "$WORKTREE_PATH" "$BASE_BRANCH"
 
 echo ""
 echo "✅ Worktree created successfully!"
+
+# Set up environment files
+echo ""
+echo "🔧 Setting up environment files..."
+cd "$WORKTREE_PATH"
+if [ -f "./scripts/worktree-setup-env.sh" ]; then
+    ./scripts/worktree-setup-env.sh
+else
+    echo "⚠️  No env setup script found. Remember to set up your .env.local file!"
+fi
+cd - > /dev/null
+
 echo ""
 echo "📋 Next steps:"
 echo "1. cd $WORKTREE_PATH"
