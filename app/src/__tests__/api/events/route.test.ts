@@ -308,7 +308,7 @@ describe('/api/events', () => {
         mockSupabase.resolve = () => Promise.resolve({
           data: null,
           error: { message: 'Database connection failed' },
-          count: null,
+          count: undefined,
         });
         return mockSupabase;
       });
