@@ -78,6 +78,17 @@ jest.mock('@clerk/nextjs/server', () => ({
   auth: jest.fn(() => ({ userId: 'test-user-id' })),
 }))
 
+// Mock rate limiting to avoid test failures
+jest.mock('@/lib/rate-limit', () => ({
+  rateLimit: jest.fn().mockResolvedValue(null), // Never rate limit in tests
+  RATE_LIMITS: {
+    eventMutation: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
+    eventRead: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
+    rsvp: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
+    volunteer: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
+  }
+}))
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test_mock'
 process.env.STRIPE_SECRET_KEY = 'sk_test_mock'

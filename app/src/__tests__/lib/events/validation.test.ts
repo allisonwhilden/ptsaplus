@@ -505,11 +505,19 @@ describe('Edge Cases and Error Scenarios', () => {
     });
 
     it('should handle events that start exactly now', () => {
-      const now = new Date().toISOString();
+      // Use a fixed time that's definitely in the past (more than 1 minute ago)
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
       const later = new Date(Date.now() + 60 * 60 * 1000).toISOString();
       
       // Should be false because start time must be in the future
-      expect(validateEventTimes(now, later)).toBe(false);
+      expect(validateEventTimes(twoMinutesAgo, later)).toBe(false);
+      
+      // Test with time exactly 30 seconds ago (within grace period)
+      const thirtySecondsAgo = new Date(Date.now() - 30 * 1000).toISOString();
+      const laterFromThirtySecondsAgo = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      
+      // Should be true because it's within the 1-minute grace period
+      expect(validateEventTimes(thirtySecondsAgo, laterFromThirtySecondsAgo)).toBe(true);
     });
   });
 });

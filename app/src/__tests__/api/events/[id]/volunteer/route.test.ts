@@ -36,7 +36,8 @@ interface MockSupabaseClient {
 }
 
 describe('/api/events/[id]/volunteer', () => {
-  let mockSupabase: MockSupabaseClient;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockSupabase: any;
   const eventId = '550e8400-e29b-41d4-a716-446655440000';
   const slotId = '660e8400-e29b-41d4-a716-446655440000';
   const userId = 'user-123';

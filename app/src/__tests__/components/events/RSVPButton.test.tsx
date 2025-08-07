@@ -31,6 +31,7 @@ const mockToast = jest.fn();
 // Set up mocks
 beforeEach(() => {
   // The router is already mocked in jest.setup.js, just update its return value
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const navigation = require('next/navigation');
   navigation.useRouter.mockReturnValue(mockRouter);
   
