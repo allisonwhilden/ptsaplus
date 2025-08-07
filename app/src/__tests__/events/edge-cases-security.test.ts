@@ -7,7 +7,6 @@
  * and potential security threats.
  */
 
-import { NextRequest } from 'next/server';
 import { 
   validateCapacity, 
   validateGuestCount, 
@@ -26,14 +25,22 @@ jest.mock('@/lib/supabase-server', () => ({
 }));
 
 // Import mocked dependencies
-import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/lib/supabase-server';
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
 
+interface MockSupabaseClient {
+  from: jest.Mock;
+  select: jest.Mock;
+  insert: jest.Mock;
+  update: jest.Mock;
+  delete: jest.Mock;
+  eq: jest.Mock;
+  single: jest.Mock;
+}
+
 describe('Event Management Edge Cases & Security', () => {
-  let mockSupabase: any;
+  let mockSupabase: MockSupabaseClient;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -48,7 +55,7 @@ describe('Event Management Edge Cases & Security', () => {
       single: jest.fn().mockReturnThis(),
     };
 
-    // @ts-ignore - Mock typing for tests
+    // @ts-expect-error - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
@@ -355,9 +362,9 @@ describe('Event Management Edge Cases & Security', () => {
 
       it('should handle undefined/null role values safely', () => {
         expect(canUserViewEvent('members', undefined, true)).toBe(true);
-        expect(canUserViewEvent('members', null as any, true)).toBe(true);
+        expect(canUserViewEvent('members', null as unknown as string, true)).toBe(true);
         expect(canUserViewEvent('board', undefined, true)).toBe(false);
-        expect(canUserViewEvent('board', null as any, true)).toBe(false);
+        expect(canUserViewEvent('board', null as unknown as string, true)).toBe(false);
       });
     });
 
@@ -381,7 +388,7 @@ describe('Event Management Edge Cases & Security', () => {
         
         if (!result.success) {
           // Check that error messages don't contain sensitive info
-          const errorMessages = result.error.issues.map((e: any) => e.message).join(' ');
+          const errorMessages = result.error.issues.map((e: { message: string }) => e.message).join(' ');
           expect(errorMessages).not.toContain('database');
           expect(errorMessages).not.toContain('admin');
           expect(errorMessages).not.toContain('secret');
@@ -453,7 +460,7 @@ describe('Event Management Edge Cases & Security', () => {
         expect(result.success).toBe(false);
         
         if (!result.success) {
-          const hasTimeError = result.error.issues.some((e: any) => 
+          const hasTimeError = result.error.issues.some((e: { message: string }) => 
             e.message.includes('End time must be after start time')
           );
           expect(hasTimeError).toBe(true);
@@ -648,7 +655,7 @@ describe('Event Management Edge Cases & Security', () => {
       it('should handle unlimited capacity (null capacity)', () => {
         // Events without capacity limits
         expect(validateCapacity(1000, 500, undefined)).toBe(true);
-        expect(validateCapacity(0, 10000, null as any)).toBe(true);
+        expect(validateCapacity(0, 10000, null as unknown as number)).toBe(true);
       });
     });
   });

@@ -18,8 +18,24 @@ jest.mock('@/lib/supabase-server');
 const mockAuth = auth as jest.MockedFunction<typeof auth>;
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
 
+interface MockSupabaseClient {
+  from: jest.Mock;
+  select: jest.Mock;
+  insert: jest.Mock;
+  eq: jest.Mock;
+  in: jest.Mock;
+  gte: jest.Mock;
+  lte: jest.Mock;
+  or: jest.Mock;
+  order: jest.Mock;
+  range: jest.Mock;
+  single: jest.Mock;
+  modifySelect: jest.Mock;
+  resolve?: () => Promise<{ data: unknown; error: unknown; count?: number }>;
+}
+
 describe('/api/events', () => {
-  let mockSupabase: any;
+  let mockSupabase: MockSupabaseClient;
 
   beforeEach(() => {
     // Reset all mocks
@@ -41,7 +57,7 @@ describe('/api/events', () => {
       modifySelect: jest.fn().mockReturnThis(),
     };
 
-    // @ts-ignore - Mock typing for tests
+    // @ts-expect-error - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
@@ -72,7 +88,7 @@ describe('/api/events', () => {
     it('should return public events for unauthenticated users', async () => {
       mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
-      mockSupabase.eq.mockImplementation((field: string, value: any) => {
+      mockSupabase.eq.mockImplementation((field: string, value: unknown) => {
         if (field === 'visibility' && value === 'public') {
           return mockSupabase;
         }
@@ -102,7 +118,7 @@ describe('/api/events', () => {
     it('should return member and public events for authenticated members', async () => {
       mockAuth.mockResolvedValue(createMockAuth('user-123'));
       mockSupabase.single.mockResolvedValue({ data: { role: 'member' } });
-      mockSupabase.in.mockImplementation((field: string, values: any[]) => {
+      mockSupabase.in.mockImplementation((field: string, values: unknown[]) => {
         if (field === 'visibility' && values.includes('members')) {
           return mockSupabase;
         }
@@ -450,7 +466,7 @@ describe('/api/events', () => {
       
       // Mock event creation
       let insertCallCount = 0;
-      mockSupabase.insert.mockImplementation((data: any) => {
+      mockSupabase.insert.mockImplementation((data: unknown) => {
         insertCallCount++;
         if (insertCallCount === 1) {
           // Event creation

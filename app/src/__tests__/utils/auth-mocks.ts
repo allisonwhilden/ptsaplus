@@ -4,6 +4,7 @@
  * Provides properly typed mock objects for Clerk auth
  */
 
+// Return any type for mock auth to bypass TypeScript strict checking in tests
 export function createMockAuth(userId: string | null = null): any {
   if (userId) {
     // Return authenticated user mock

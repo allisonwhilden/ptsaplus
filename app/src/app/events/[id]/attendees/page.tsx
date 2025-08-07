@@ -18,9 +18,9 @@ import { ArrowLeft, Download, Mail, Phone, Users } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export const metadata: Metadata = {

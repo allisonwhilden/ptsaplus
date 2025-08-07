@@ -18,8 +18,18 @@ jest.mock('@/lib/supabase-server');
 const mockAuth = auth as jest.MockedFunction<typeof auth>;
 const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
 
+interface MockSupabaseClient {
+  from: jest.Mock;
+  select: jest.Mock;
+  insert: jest.Mock;
+  update: jest.Mock;
+  delete: jest.Mock;
+  eq: jest.Mock;
+  single: jest.Mock;
+}
+
 describe('/api/events/[id]/rsvp', () => {
-  let mockSupabase: any;
+  let mockSupabase: MockSupabaseClient;
   const eventId = '550e8400-e29b-41d4-a716-446655440000';
   const userId = 'user-123';
   const memberId = 'member-456';
@@ -38,7 +48,7 @@ describe('/api/events/[id]/rsvp', () => {
       single: jest.fn().mockReturnThis(),
     };
 
-    // @ts-ignore - Mock typing for tests
+    // @ts-expect-error - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
   });
 
