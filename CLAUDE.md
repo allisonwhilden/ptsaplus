@@ -60,6 +60,52 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `/events/[id]/edit` - Edit event
   - Implementation validated with volunteer-advocate for usability
 
+✅ **Privacy & Compliance System - Completed Jan 9**
+  - **FERPA/COPPA Compliant Implementation**:
+    - Full COPPA parental consent flow with 4 FTC-approved verification methods
+    - Field-level privacy controls with role-based visibility
+    - Comprehensive audit logging for all privacy-related actions
+    - Data export (GDPR Article 20) and deletion (Right to Erasure) capabilities
+  - **Security Features**:
+    - AES-256-GCM encryption for all PII fields
+    - Secure RLS policies with proper JWT integration
+    - Rate limiting on all privacy endpoints
+    - Automated data retention with compliant anonymization
+  - **Consent Management**:
+    - Versioned privacy policy and terms tracking
+    - Granular consent controls for different data uses
+    - Automatic reconsent requirements for policy changes
+    - Parent/guardian consent for users under 13
+  - **Database Tables**:
+    - `privacy_settings` - User privacy preferences
+    - `consent_records` - Immutable consent audit trail
+    - `audit_logs` - Comprehensive activity logging
+    - `child_accounts` - COPPA compliance for minors
+    - `policy_versions` - Privacy policy version history
+    - `data_export_requests` - GDPR/CCPA request tracking
+  - **API Endpoints**:
+    - `/api/privacy/settings` - Privacy preference management
+    - `/api/privacy/consent` - Consent recording
+    - `/api/privacy/coppa/verify-parent` - Parental verification
+    - `/api/privacy/export` - Data export requests
+    - `/api/privacy/delete` - Account deletion with anonymization
+    - `/api/admin/audit-logs` - Admin audit log access
+  - **UI Components**:
+    - Privacy settings manager (`/settings/privacy`)
+    - Consent preference center
+    - COPPA parental consent flow
+    - Admin privacy dashboard (`/admin/privacy`)
+  - **Compliance Features**:
+    - FERPA: Educational records protection with audit trails
+    - COPPA: Parental consent for users under 13
+    - GDPR: Data portability and erasure rights
+    - CCPA: California privacy rights compliance
+  - **Production Security**:
+    - Fixed critical RLS vulnerability identified in review
+    - Implemented field-level encryption for sensitive data
+    - Added comprehensive rate limiting
+    - Automated retention policies (7 years financial, 3 years audit)
+
 ### In Progress
 🔄 Email communications
 🔄 AI-assisted features
@@ -151,6 +197,32 @@ The following specialized agents are configured to assist with PTSA+ development
 - **When to use**: After implementing features, reviewing test coverage, critical path testing
 - **Examples**: Payment flow tests, privacy control tests, authentication tests
 
+### MANDATORY Agent Consultations
+
+**CRITICAL**: These consultations are NOT optional. Failure to consult appropriate agents for these scenarios may result in security vulnerabilities, compliance violations, or poor user experience.
+
+#### Required Consultations by Feature Type
+
+| Feature Type | Required Agent | When to Consult | Why It's Mandatory |
+|-------------|---------------|-----------------|-------------------|
+| User Data Handling | privacy-guardian | BEFORE writing any code | Prevent FERPA/COPPA violations |
+| Payment Processing | payment-auditor | BEFORE implementation | Ensure PCI compliance |
+| Child Accounts (<13) | privacy-guardian | BEFORE design phase | COPPA compliance required |
+| AI Features | ai-economist | BEFORE using any AI APIs | Prevent cost overruns |
+| User Interfaces | volunteer-advocate | BEFORE implementation | Ensure 5-minute test passes |
+| Database Changes | privacy-guardian | BEFORE migrations | Prevent data exposure |
+| API Endpoints | test-enforcer | AFTER implementation | Ensure security coverage |
+| Production Deploy | ALL relevant agents | BEFORE deployment | Comprehensive review |
+
+#### Consultation Documentation
+Every PR must include:
+```markdown
+## Agent Consultations
+- **[Agent Name]**: [Consultation result]
+  - ✅ [Implemented recommendation]
+  - ❌ [Deferred recommendation - reason]
+```
+
 ### Agent Decision Priority
 When multiple agents apply, use this priority order:
 1. privacy-guardian (compliance is non-negotiable)
@@ -189,6 +261,74 @@ Claude should proactively suggest agent consultation when detecting these patter
 1. **Before Implementation**: Consult relevant agents during planning
 2. **After Implementation**: Run test-enforcer and perf-optimizer
 3. **During PR Creation**: List all agent consultations in PR description
+
+## Security Development Practices
+
+### Security Checkpoints
+
+**MANDATORY**: Complete these security checks at each development phase:
+
+#### Before Writing Code
+- [ ] Review existing security patterns in codebase
+- [ ] Check if feature handles PII or sensitive data
+- [ ] Verify authentication requirements
+- [ ] Plan encryption strategy if needed
+- [ ] Identify rate limiting needs
+
+#### Before Database Changes
+- [ ] Review RLS policies for security vulnerabilities
+- [ ] Verify no auth.uid()::text casting (use secure functions)
+- [ ] Ensure proper foreign key constraints
+- [ ] Add field-level encryption for PII
+- [ ] Create appropriate indexes for security queries
+
+#### Before Creating API Endpoints
+- [ ] Implement authentication checks
+- [ ] Add rate limiting (use withRateLimit wrapper)
+- [ ] Validate all inputs with strict schemas
+- [ ] Implement audit logging
+- [ ] Add error handling that doesn't leak information
+- [ ] Test with malicious inputs
+
+#### Before Handling User Data
+- [ ] Implement field-level encryption for PII
+- [ ] Add privacy settings checks
+- [ ] Verify consent before processing
+- [ ] Implement data minimization
+- [ ] Add audit trail
+
+#### Security Implementation Checklist
+```typescript
+// Every API endpoint must have:
+✅ Authentication check
+✅ Rate limiting
+✅ Input validation
+✅ Audit logging
+✅ Secure error handling
+
+// Example secure endpoint pattern:
+export async function POST(request: NextRequest) {
+  // 1. Authentication
+  const { userId } = auth();
+  if (!userId) return unauthorized();
+  
+  // 2. Rate limiting
+  return withRateLimit(request, 'endpointType', async () => {
+    // 3. Input validation
+    const body = await validateInput(request);
+    
+    // 4. Audit logging
+    await logAuditEvent({ userId, action, resource });
+    
+    try {
+      // Business logic
+    } catch (error) {
+      // 5. Secure error handling
+      return secureError(error);
+    }
+  });
+}
+```
 
 ## Data Privacy Considerations
 
@@ -322,6 +462,125 @@ export async function verifyWebhookSignature(
 - **Third-party Integrations**: Webhook security, idempotency
 - **Admin Actions**: Comprehensive audit logging
 
+## Compliance Implementation Patterns
+
+### COPPA (Children Under 13)
+
+#### Required Implementation
+```typescript
+// 1. Age verification during registration
+const age = calculateAge(birthDate);
+if (age < 13) {
+  // Redirect to parental consent flow
+  return redirectToParentalConsent();
+}
+
+// 2. Parental verification methods (implement at least one)
+- Credit card: $0.50 charge with immediate refund
+- Knowledge-based authentication (KBA)
+- Government ID upload
+- Signed consent form
+
+// 3. Child account restrictions
+const childRestrictions = {
+  ai_features: false,
+  data_sharing: false,
+  photo_sharing: false,
+  directory_visible: false
+};
+
+// 4. Automatic age-out at 13
+if (childTurned13(birthDate)) {
+  await convertToRegularAccount(userId);
+  await notifyUserAndParent(userId, parentId);
+}
+```
+
+### FERPA (Educational Records)
+
+#### Required Implementation
+```typescript
+// 1. Role-based access to educational data
+const canAccessRecords = (userRole: string, targetUserId: string) => {
+  // Parents can access own children's records
+  // Admins can access with audit trail
+  // Teachers can access their students
+  return hasPermission(userRole, targetUserId);
+};
+
+// 2. Audit all educational record access
+await logAuditEvent({
+  userId,
+  action: 'educational_record.access',
+  resourceId: recordId,
+  metadata: { reason, authorized_by }
+});
+
+// 3. Directory information opt-out
+if (!privacySettings.directory_visible) {
+  return null; // Hide from directory
+}
+```
+
+### GDPR/CCPA (Data Rights)
+
+#### Required Implementation
+```typescript
+// 1. Data export (Right to Access)
+const exportUserData = async (userId: string) => {
+  const data = {
+    profile: await getProfile(userId),
+    consents: await getConsents(userId),
+    activity: await getActivity(userId)
+  };
+  return formatAsJSON(data);
+};
+
+// 2. Data deletion (Right to Erasure)
+const deleteUserData = async (userId: string) => {
+  // Anonymize instead of delete for legal records
+  await anonymizeUser(userId);
+  await deleteFromAuth(userId);
+  await logDeletion(userId);
+};
+
+// 3. Consent tracking
+const recordConsent = async (userId: string, type: string, granted: boolean) => {
+  await saveConsent({
+    userId,
+    type,
+    granted,
+    version: CURRENT_POLICY_VERSION,
+    timestamp: new Date()
+  });
+};
+```
+
+### Field-Level Encryption Pattern
+
+#### Required for PII
+```typescript
+import { encryptField, decryptField } from '@/lib/privacy/encryption';
+
+// Encrypt before storing
+const user = {
+  email: encryptField(email, 'pii'),
+  phone: encryptField(phone, 'pii'),
+  ssn: encryptField(ssn, 'pii')
+};
+
+// Decrypt when reading
+const decryptedUser = {
+  email: decryptField(user.email, 'pii'),
+  phone: decryptField(user.phone, 'pii')
+};
+
+// Required environment variables
+ENCRYPTION_KEY=        // 32+ chars
+PII_ENCRYPTION_KEY=    // For PII
+FINANCIAL_ENCRYPTION_KEY= // For financial data
+```
+
 ## Success Metrics
 
 ### User Experience Validation
@@ -341,6 +600,86 @@ export async function verifyWebhookSignature(
 - **Core Features**: Member management operational
 - **User Activation Rate**: > 80% (target)
 - **Support Tickets**: < 5% of users (target)
+
+## Production Readiness Checklist
+
+### MANDATORY Before Production Deployment
+
+**CRITICAL**: No feature should be deployed to production without completing this checklist. Incomplete implementations can result in security breaches, compliance violations, or poor user experience.
+
+#### Security & Compliance
+- [ ] ✅ Privacy-guardian agent consulted and recommendations implemented
+- [ ] ✅ Payment-auditor agent consulted (if payment-related)
+- [ ] ✅ All PII fields encrypted with AES-256-GCM
+- [ ] ✅ RLS policies reviewed and tested
+- [ ] ✅ Rate limiting implemented on all endpoints
+- [ ] ✅ Audit logging for all data access
+- [ ] ✅ COPPA compliance verified (if handling child data)
+- [ ] ✅ Input validation with strict schemas
+- [ ] ✅ Secure error handling (no information leakage)
+
+#### Testing
+- [ ] ✅ Test coverage >= 80%
+- [ ] ✅ Security tests for authentication bypass attempts
+- [ ] ✅ Rate limit tests
+- [ ] ✅ Encryption/decryption tests
+- [ ] ✅ Edge case coverage
+- [ ] ✅ Test-enforcer agent consulted
+
+#### Performance
+- [ ] ✅ Page load time < 3 seconds on 3G
+- [ ] ✅ API response time < 200ms p95
+- [ ] ✅ Database queries optimized with indexes
+- [ ] ✅ Perf-optimizer agent consulted
+
+#### Documentation
+- [ ] ✅ CLAUDE.md updated with new features
+- [ ] ✅ README.md updated for user-visible features
+- [ ] ✅ API documentation complete
+- [ ] ✅ Environment variables documented
+- [ ] ✅ Migration instructions provided
+
+#### User Experience
+- [ ] ✅ Volunteer-advocate agent consulted
+- [ ] ✅ 5-minute test passed
+- [ ] ✅ Mobile responsive
+- [ ] ✅ Accessibility standards met
+- [ ] ✅ Help text and tooltips added
+
+### Deployment Requirements
+
+#### Environment Variables
+```bash
+# Required for ALL production deployments
+NODE_ENV=production
+NEXT_PUBLIC_APP_URL=https://yourdomain.com
+
+# Required for privacy features
+ENCRYPTION_KEY=[32+ char key from openssl rand -hex 32]
+PII_ENCRYPTION_KEY=[separate key for PII]
+FINANCIAL_ENCRYPTION_KEY=[separate key for financial]
+HASH_SALT=[random salt]
+
+# Required for payments
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+```
+
+#### Database Migrations
+Run in order:
+1. Core schema migrations
+2. Privacy compliance tables
+3. RLS security fixes
+4. Consent versioning
+
+#### Post-Deployment Verification
+- [ ] All environment variables set
+- [ ] Database migrations successful
+- [ ] Health check endpoint responding
+- [ ] Audit logging working
+- [ ] Rate limiting active
+- [ ] Encryption verified
 
 ## Agent Usage Guidelines
 
@@ -839,10 +1178,31 @@ When a feature is complete:
    pnpm type-check        # No TypeScript errors
    ```
 
-2. **Update Documentation**:
-   - Update CLAUDE.md if feature adds new capabilities
-   - Document any new API endpoints or components
-   - Update environment variables if needed
+2. **Update Documentation** (MANDATORY):
+   
+   **Always update these files:**
+   - ✅ **CLAUDE.md**: Add new features, APIs, security patterns
+   - ✅ **README.md**: Update user-visible features
+   - ✅ **PROJECT_STATUS.md**: Update completion percentages
+   - ✅ **Environment variables**: Document new requirements
+   
+   **Create if applicable:**
+   - Feature-specific guide in `/docs` for complex features
+   - API documentation for new endpoints
+   - Migration guide for breaking changes
+   - Security documentation for sensitive features
+   
+   **Documentation Checklist:**
+   ```markdown
+   ## Documentation Updated
+   - [ ] CLAUDE.md - Added [specific section]
+   - [ ] README.md - Updated features list
+   - [ ] PROJECT_STATUS.md - Updated progress
+   - [ ] Environment variables documented
+   - [ ] API documentation complete
+   - [ ] Migration guide (if needed)
+   - [ ] Security notes added
+   ```
 
 3. **Create Pull Request**:
    ```bash
@@ -1013,7 +1373,39 @@ OPENAI_API_KEY=
 # Upstash Redis (when implementing caching)
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
+
+# Privacy & Encryption (REQUIRED for production) ✅
+ENCRYPTION_KEY= # 32+ character secure key for AES-256-GCM
+PII_ENCRYPTION_KEY= # Separate key for PII data encryption
+FINANCIAL_ENCRYPTION_KEY= # Separate key for financial data
+HEALTH_ENCRYPTION_KEY= # Separate key for health data (future)
+HASH_SALT= # Salt for one-way hashing of searchable fields
 ```
+
+### Privacy & Compliance Deployment Requirements
+
+Before deploying the privacy features to production:
+
+1. **Generate Encryption Keys**:
+   ```bash
+   # Generate secure encryption keys
+   openssl rand -hex 32  # For each encryption key
+   ```
+
+2. **Run Database Migrations** (in order):
+   - `005_add_privacy_compliance_tables.sql` - Core privacy tables
+   - `006_fix_rls_security_vulnerability.sql` - Critical security fix
+   - `007_add_consent_versioning.sql` - Policy version tracking
+
+3. **Configure Automated Jobs**:
+   - Data retention cleanup: Daily at 2 AM
+   - COPPA age-out checks: Weekly on Sundays
+   - Temporary data cleanup: Hourly
+
+4. **Update Legal Documents**:
+   - Privacy Policy with COPPA notice
+   - Terms of Service with data retention periods
+   - Cookie Policy (if using analytics)
 
 ## Special Considerations
 

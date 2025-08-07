@@ -3,5 +3,19 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": ".next",
-  "devCommand": "pnpm dev"
+  "devCommand": "pnpm dev",
+  "crons": [
+    {
+      "path": "/api/cron/data-retention",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/coppa-age-out",
+      "schedule": "0 3 * * 0"
+    },
+    {
+      "path": "/api/cron/temp-cleanup",
+      "schedule": "0 * * * *"
+    }
+  ]
 }
