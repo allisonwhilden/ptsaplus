@@ -594,9 +594,17 @@ describe('RSVPButton', () => {
       // Rerender with userRsvp to simulate the component updating after save
       const eventWithRsvp = {
         ...baseEvent,
-        user_rsvp: { id: 'rsvp-123', event_id: baseEvent.id, user_id: 'user-123', status: 'attending', guest_count: 0 }
+        user_rsvp: { 
+          id: 'rsvp-123', 
+          event_id: baseEvent.id, 
+          user_id: 'user-123', 
+          status: 'attending' as const, 
+          guest_count: 0,
+          created_at: '2025-08-01T10:00:00Z',
+          updated_at: '2025-08-01T10:00:00Z'
+        }
       };
-      rerender(<RSVPButton event={eventWithRsvp} userId="user-123" userRsvp={{ id: 'rsvp-123', status: 'attending', guest_count: 0 }} />);
+      rerender(<RSVPButton event={eventWithRsvp} userId="user-123" />);
       
       // Wait for the button to update
       await waitFor(() => {
