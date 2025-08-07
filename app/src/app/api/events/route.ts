@@ -223,8 +223,17 @@ export async function POST(request: NextRequest) {
         .insert(volunteerSlots);
       
       if (slotsError) {
-        // Note: In a real app, we'd want to rollback the event creation here
-        // For now, we'll continue even if slots fail
+        // Rollback: Delete the created event if volunteer slots fail
+        await supabase
+          .from('events')
+          .delete()
+          .eq('id', event.id);
+        
+        console.error('Failed to create volunteer slots:', slotsError);
+        return NextResponse.json(
+          { error: 'Failed to create event with volunteer slots' },
+          { status: 500 }
+        );
       }
     }
     

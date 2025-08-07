@@ -202,8 +202,21 @@ export async function DELETE(
       );
     }
     
-    const searchParams = request.nextUrl.searchParams;
-    const slotId = searchParams.get('slot_id');
+    // Get slot_id from query params
+    let slotId: string | null = null;
+    
+    // Try to get from nextUrl (production)
+    if (request.nextUrl) {
+      slotId = request.nextUrl.searchParams.get('slot_id');
+    } else if (request.url) {
+      // Fallback for test environments where nextUrl might not be set
+      try {
+        const url = new URL(request.url);
+        slotId = url.searchParams.get('slot_id');
+      } catch (e) {
+        // Invalid URL, slotId remains null
+      }
+    }
     
     if (!slotId) {
       return NextResponse.json(
