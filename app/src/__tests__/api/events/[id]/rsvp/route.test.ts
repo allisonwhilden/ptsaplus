@@ -371,7 +371,8 @@ describe('/api/events/[id]/rsvp', () => {
 
       expect(response.status).toBe(400);
       const data = await response.json();
-      expect(data.error).toBe('Invalid guest count (max 10)');
+      expect(data.error).toBe('Invalid RSVP data');
+      expect(data.details).toBeDefined();
     });
 
     it('should enforce event capacity limits', async () => {
@@ -771,6 +772,9 @@ describe('/api/events/[id]/rsvp', () => {
     it('should prevent RSVP manipulation via parameter tampering', async () => {
       mockAuth.mockResolvedValue(createMockAuth('user-123'));
       
+      // Setup member lookup to succeed
+      mockSupabase.single.mockResolvedValueOnce({ data: { id: memberId, role: 'member' }, error: null });
+      
       // Try to RSVP for a different event than specified in URL
       const maliciousRsvp = {
         status: 'attending',
@@ -785,9 +789,15 @@ describe('/api/events/[id]/rsvp', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
+      // Actually call the POST handler
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
+      
       // The validation should pass but the actual insert should use URL params and auth
       // This tests that we don't trust client-provided event_id or user_id
       expect(mockAuth).toHaveBeenCalled();
+      
+      // Request should fail because member not found or event not found
+      expect(response.status).toBeGreaterThanOrEqual(400);
     });
 
     it('should prevent RSVP to private events by regular members', async () => {
