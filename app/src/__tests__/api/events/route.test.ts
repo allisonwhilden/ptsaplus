@@ -190,21 +190,27 @@ describe('/api/events', () => {
     it('should apply search filtering', async () => {
       mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
+      
+      setupSupabaseMock(mockSupabase, mockEvents);
 
       const searchTerm = 'meeting';
       const request = new NextRequest(`http://localhost:3000/api/events?search=${searchTerm}`);
       const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(mockSupabase.or).toHaveBeenCalledWith(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
     });
 
     it('should apply pagination', async () => {
       mockAuth.mockResolvedValue(createMockAuth(null));
       mockSupabase.single.mockResolvedValue({ data: null });
+      
+      setupSupabaseMock(mockSupabase, mockEvents);
 
       const request = new NextRequest('http://localhost:3000/api/events?limit=10&offset=20');
       const response = await GET(request);
 
+      expect(response.status).toBe(200);
       expect(mockSupabase.range).toHaveBeenCalledWith(20, 29); // offset to offset + limit - 1
     });
 

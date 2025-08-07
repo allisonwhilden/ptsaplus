@@ -537,9 +537,12 @@ describe('/api/events/[id]/rsvp', () => {
     });
 
     it('should delete RSVP successfully', async () => {
-      mockSupabase.delete.mockImplementation(() => {
-        return Promise.resolve({ error: null });
-      });
+      // Setup the delete mock chain properly
+      const deleteChain = {
+        eq: jest.fn().mockReturnThis(),
+      };
+      deleteChain.eq.mockResolvedValue({ data: null, error: null });
+      mockSupabase.delete.mockReturnValue(deleteChain);
 
       const request = new NextRequest(`http://localhost:3000/api/events/${eventId}/rsvp`, {
         method: 'DELETE',
@@ -553,8 +556,8 @@ describe('/api/events/[id]/rsvp', () => {
 
       // Verify delete was called with correct parameters
       expect(mockSupabase.delete).toHaveBeenCalled();
-      expect(mockSupabase.eq).toHaveBeenCalledWith('event_id', eventId);
-      expect(mockSupabase.eq).toHaveBeenCalledWith('user_id', userId);
+      expect(deleteChain.eq).toHaveBeenCalledWith('event_id', eventId);
+      expect(deleteChain.eq).toHaveBeenCalledWith('user_id', userId);
     });
 
     it('should reject deletion from unauthenticated users', async () => {
@@ -584,9 +587,12 @@ describe('/api/events/[id]/rsvp', () => {
     });
 
     it('should handle database errors during deletion', async () => {
-      mockSupabase.delete.mockImplementation(() => {
-        return Promise.resolve({ error: { message: 'Database constraint violation' } });
-      });
+      // Setup the delete mock chain with error
+      const deleteChain = {
+        eq: jest.fn().mockReturnThis(),
+      };
+      deleteChain.eq.mockResolvedValue({ data: null, error: { message: 'Database constraint violation' } });
+      mockSupabase.delete.mockReturnValue(deleteChain);
 
       const request = new NextRequest(`http://localhost:3000/api/events/${eventId}/rsvp`, {
         method: 'DELETE',
@@ -601,9 +607,11 @@ describe('/api/events/[id]/rsvp', () => {
 
     it('should succeed even if RSVP does not exist', async () => {
       // Supabase delete operations succeed even if no rows are affected
-      mockSupabase.delete.mockImplementation(() => {
-        return Promise.resolve({ error: null });
-      });
+      const deleteChain = {
+        eq: jest.fn().mockReturnThis(),
+      };
+      deleteChain.eq.mockResolvedValue({ data: null, error: null });
+      mockSupabase.delete.mockReturnValue(deleteChain);
 
       const request = new NextRequest(`http://localhost:3000/api/events/${eventId}/rsvp`, {
         method: 'DELETE',
