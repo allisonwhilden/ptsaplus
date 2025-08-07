@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
       notes?: string | null;
     }
     const userRsvps = new Map<string, EventRSVP>();
-    if (userId && events.length > 0) {
+    if (userId && events && events.length > 0) {
       const eventIds = events.map(e => e.id);
       const { data: rsvps } = await supabase
         .from('event_rsvps')
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Transform events to include counts and user RSVP data
-    const eventsWithCounts: EventWithCounts[] = events.map(event => {
+    const eventsWithCounts: EventWithCounts[] = (events || []).map(event => {
       // Count RSVPs from the joined data
       const rsvps = event.event_rsvps || [];
       const rsvpCount = rsvps.length;
