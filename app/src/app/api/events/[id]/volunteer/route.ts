@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase-server';
 import { volunteerSignupSchema } from '@/lib/events/validation';
 import { canUserViewEvent } from '@/lib/events/validation';
 import { VolunteerSignupRequest } from '@/lib/events/types';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 export async function POST(
@@ -26,6 +27,10 @@ export async function POST(
         { status: 401 }
       );
     }
+    
+    // Apply rate limiting for volunteer operations
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.volunteer, userId);
+    if (rateLimitResponse) return rateLimitResponse;
     
     const { id: eventId } = await params;
     if (!eventId) {
@@ -250,6 +255,18 @@ export async function DELETE(
     
     if (error) {
       console.error('Error deleting volunteer signup:', error);
+      
+      // Handle specific database constraint violations
+      if (error.message?.includes('constraint')) {
+        return NextResponse.json(
+          { 
+            error: 'Cannot delete volunteer signup due to existing dependencies',
+            details: 'Please ensure all related records are removed first'
+          },
+          { status: 409 } // Conflict
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Failed to delete volunteer signup' },
         { status: 500 }

@@ -12,11 +12,16 @@ import { eventFormSchema, eventListParamsSchema } from '@/lib/events/validation'
 import { canUserViewEvent } from '@/lib/events/validation';
 import { EventWithCounts, CreateEventRequest } from '@/lib/events/types';
 import { escapeSqlLikePattern } from '@/lib/utils';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
+    
+    // Apply rate limiting for read operations
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.eventRead, userId);
+    if (rateLimitResponse) return rateLimitResponse;
     
     // Handle both production and test environments
     let searchParams: URLSearchParams;
@@ -188,6 +193,10 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+    
+    // Apply rate limiting for mutation operations
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.eventMutation, userId);
+    if (rateLimitResponse) return rateLimitResponse;
     
     const supabase = await createClient();
     

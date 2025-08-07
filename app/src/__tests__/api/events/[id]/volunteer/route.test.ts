@@ -724,11 +724,32 @@ describe('/api/events/[id]/volunteer', () => {
       expect(data.error).toBe('Volunteer slot not found');
     });
 
-    it('should handle database errors during deletion', async () => {
-      // Mock the delete chain to return an error
+    it('should handle database constraint violations during deletion', async () => {
+      // Mock the delete chain to return a constraint violation error
       mockSupabase.delete.mockReturnValue({
         eq: jest.fn().mockReturnValue({
           eq: jest.fn().mockResolvedValue({ error: { message: 'Database constraint violation' } })
+        })
+      });
+
+      const request = new NextRequest(
+        `http://localhost:3000/api/events/${eventId}/volunteer?slot_id=${slotId}`,
+        { method: 'DELETE' }
+      );
+
+      const response = await DELETE(request, { params: Promise.resolve({ id: eventId }) });
+
+      expect(response.status).toBe(409); // Conflict status for constraint violations
+      const data = await response.json();
+      expect(data.error).toBe('Cannot delete volunteer signup due to existing dependencies');
+      expect(data.details).toBe('Please ensure all related records are removed first');
+    });
+    
+    it('should handle general database errors during deletion', async () => {
+      // Mock the delete chain to return a general error
+      mockSupabase.delete.mockReturnValue({
+        eq: jest.fn().mockReturnValue({
+          eq: jest.fn().mockResolvedValue({ error: { message: 'Connection timeout' } })
         })
       });
 

@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase-server';
 import { rsvpSchema } from '@/lib/events/validation';
 import { validateCapacity, validateGuestCount, canUserViewEvent } from '@/lib/events/validation';
 import { RSVPRequest } from '@/lib/events/types';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 export async function POST(
@@ -26,6 +27,10 @@ export async function POST(
         { status: 401 }
       );
     }
+    
+    // Apply rate limiting for RSVP operations
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.rsvp, userId);
+    if (rateLimitResponse) return rateLimitResponse;
     
     const { id: eventId } = await params;
     if (!eventId) {
