@@ -11,12 +11,24 @@ import { createClient } from '@/lib/supabase-server';
 import { eventFormSchema, eventListParamsSchema } from '@/lib/events/validation';
 import { canUserViewEvent } from '@/lib/events/validation';
 import { EventWithCounts, CreateEventRequest } from '@/lib/events/types';
+import { escapeSqlLikePattern } from '@/lib/utils';
 import { z } from 'zod';
 
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
-    const searchParams = request.nextUrl.searchParams;
+    
+    // Handle both production and test environments
+    let searchParams: URLSearchParams;
+    if (request.nextUrl) {
+      searchParams = request.nextUrl.searchParams;
+    } else if (request.url) {
+      // Fallback for test environments
+      const url = new URL(request.url);
+      searchParams = url.searchParams;
+    } else {
+      searchParams = new URLSearchParams();
+    }
     
     // Parse and validate query parameters
     const params = eventListParamsSchema.parse({
@@ -83,7 +95,9 @@ export async function GET(request: NextRequest) {
     }
     
     if (params.search) {
-      query = query.or(`title.ilike.%${params.search}%,description.ilike.%${params.search}%`);
+      // Escape special characters to prevent SQL injection
+      const escapedSearch = escapeSqlLikePattern(params.search);
+      query = query.or(`title.ilike.%${escapedSearch}%,description.ilike.%${escapedSearch}%`);
     }
     
     // Apply pagination
@@ -100,7 +114,15 @@ export async function GET(request: NextRequest) {
     }
     
     // Get user's RSVPs if authenticated
-    let userRsvps = new Map<string, any>();
+    interface EventRSVP {
+      id: string;
+      event_id: string;
+      user_id: string;
+      status: string;
+      guests_count?: number;
+      notes?: string | null;
+    }
+    const userRsvps = new Map<string, EventRSVP>();
     if (userId && events.length > 0) {
       const eventIds = events.map(e => e.id);
       const { data: rsvps } = await supabase
@@ -121,7 +143,10 @@ export async function GET(request: NextRequest) {
       // Count RSVPs from the joined data
       const rsvps = event.event_rsvps || [];
       const rsvpCount = rsvps.length;
-      const attendingCount = rsvps.filter((rsvp: any) => rsvp.status === 'attending').length;
+      interface RSVPData {
+        status: string;
+      }
+      const attendingCount = rsvps.filter((rsvp: RSVPData) => rsvp.status === 'attending').length;
       
       return {
         ...event,

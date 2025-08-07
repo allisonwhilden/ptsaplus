@@ -195,7 +195,7 @@ export function RSVPButton({ event, userId, onUpdate }: RSVPButtonProps) {
           <DialogHeader>
             <DialogTitle>RSVP for {event.title}</DialogTitle>
             <DialogDescription>
-              Let us know if you'll be attending this event
+              Let us know if you&apos;ll be attending this event
             </DialogDescription>
           </DialogHeader>
           
@@ -206,13 +206,13 @@ export function RSVPButton({ event, userId, onUpdate }: RSVPButtonProps) {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="attending" id="attending" />
                   <Label htmlFor="attending" className="font-normal">
-                    Yes, I'll be there
+                    Yes, I&apos;ll be there
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="not_attending" id="not_attending" />
                   <Label htmlFor="not_attending" className="font-normal">
-                    No, I can't make it
+                    No, I can&apos;t make it
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">

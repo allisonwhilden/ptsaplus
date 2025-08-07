@@ -28,7 +28,11 @@ interface VolunteerSignupProps {
   eventId: string;
   slot: VolunteerSlotWithSignups;
   userId?: string;
-  userSignup?: any;
+  userSignup?: {
+    id: string;
+    quantity: number;
+    notes?: string | null;
+  };
   onUpdate?: () => void;
 }
 

@@ -45,16 +45,25 @@ describe('/api/events/[id]/volunteer', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock Supabase client
+    // Mock Supabase client with proper chaining
     mockSupabase = {
-      from: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      update: jest.fn().mockReturnThis(),
-      delete: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn().mockReturnThis(),
+      from: jest.fn(),
+      select: jest.fn(),
+      insert: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      eq: jest.fn(),
+      single: jest.fn(),
     };
+
+    // Ensure all methods return 'this' for chaining
+    mockSupabase.from.mockReturnValue(mockSupabase);
+    mockSupabase.select.mockReturnValue(mockSupabase);
+    mockSupabase.insert.mockReturnValue(mockSupabase);
+    mockSupabase.update.mockReturnValue(mockSupabase);
+    mockSupabase.delete.mockReturnValue(mockSupabase);
+    mockSupabase.eq.mockReturnValue(mockSupabase);
+    mockSupabase.single.mockReturnValue(mockSupabase);
 
     // @ts-expect-error - Mock typing for tests
     mockCreateClient.mockResolvedValue(mockSupabase);
@@ -84,11 +93,32 @@ describe('/api/events/[id]/volunteer', () => {
     beforeEach(() => {
       mockAuth.mockResolvedValue(createMockAuth(userId));
       
-      // Mock database responses in sequence
-      let selectCallCount = 0;
+      // Track call sequences for different queries
+      let fromCallCount = 0;
+      let singleCallCount = 0;
+      
+      // Mock the from() method to track which table is being queried
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          // This is the quantity check query
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: [], error: null })
+            })
+          };
+          return quantityMock;
+        }
+        
+        return mockSupabase;
+      });
+      
+      // Mock single() calls in sequence
       mockSupabase.single.mockImplementation(() => {
-        selectCallCount++;
-        switch (selectCallCount) {
+        singleCallCount++;
+        switch (singleCallCount) {
           case 1: // Member lookup
             return Promise.resolve({ data: mockMember, error: null });
           case 2: // Event lookup
@@ -100,14 +130,6 @@ describe('/api/events/[id]/volunteer', () => {
           default:
             return Promise.resolve({ data: null, error: null });
         }
-      });
-
-      // Mock signup quantity query (no existing signups)
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: [], error: null });
-        }
-        return mockSupabase;
       });
     });
 
@@ -358,10 +380,22 @@ describe('/api/events/[id]/volunteer', () => {
         { quantity: 2 }, // Total: 4 out of 5 spots taken
       ];
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: existingSignups, error: null });
+      // Override the from() mock for this specific test
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          // This is the quantity check query with existing signups
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: existingSignups, error: null })
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
@@ -416,10 +450,21 @@ describe('/api/events/[id]/volunteer', () => {
         }
       });
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: otherSignups, error: null });
+      // Override the from() mock for updating existing signup
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: otherSignups, error: null })
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
@@ -513,10 +558,21 @@ describe('/api/events/[id]/volunteer', () => {
         { quantity: 1 }, // Total: 3 out of 5 spots taken, 2 remaining
       ];
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: existingSignups, error: null });
+      // Override the from() mock for this test
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: existingSignups, error: null })
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
@@ -747,10 +803,21 @@ describe('/api/events/[id]/volunteer', () => {
         { quantity: 1 }, // Total: 2 out of 3 spots taken
       ];
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: existingSignups, error: null });
+      // Override the from() mock for this test
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: existingSignups, error: null })
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
@@ -781,10 +848,21 @@ describe('/api/events/[id]/volunteer', () => {
         { quantity: 1 },
       ];
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: existingSignups, error: null });
+      // Override the from() mock for this test
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: existingSignups, error: null })
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
@@ -849,10 +927,21 @@ describe('/api/events/[id]/volunteer', () => {
         }
       });
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: otherSignups, error: null });
+      // Override the from() mock for reducing signup quantity
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: otherSignups, error: null })
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
@@ -890,7 +979,64 @@ describe('/api/events/[id]/volunteer', () => {
 
   describe('Privacy and Security Edge Cases', () => {
     it('should prevent volunteer signup manipulation via parameter tampering', async () => {
-      mockAuth.mockResolvedValue(createMockAuth('user-123'));
+      const authenticatedUserId = 'user-123';
+      mockAuth.mockResolvedValue(createMockAuth(authenticatedUserId));
+      
+      const mockMember = { id: memberId, role: 'member' };
+      const mockEvent = { id: eventId, visibility: 'members', type: 'volunteer' };
+      const mockSlot = { id: slotId, event_id: eventId, title: 'Test Slot', quantity: 5 };
+      
+      // Set up mocks for the test
+      let singleCallCount = 0;
+      mockSupabase.single.mockImplementation(() => {
+        singleCallCount++;
+        switch (singleCallCount) {
+          case 1: // Member lookup
+            return Promise.resolve({ data: mockMember, error: null });
+          case 2: // Event lookup
+            return Promise.resolve({ data: mockEvent, error: null });
+          case 3: // Slot lookup
+            return Promise.resolve({ data: mockSlot, error: null });
+          case 4: // Existing signup lookup
+            return Promise.resolve({ data: null, error: null });
+          default:
+            return Promise.resolve({ data: null, error: null });
+        }
+      });
+      
+      // Mock the quantity check
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: [], error: null })
+            })
+          };
+          return quantityMock;
+        }
+        
+        return mockSupabase;
+      });
+      
+      // Mock the insert to capture what data was actually used
+      const capturedInsertData: any[] = [];
+      mockSupabase.insert.mockImplementation((data: any) => {
+        capturedInsertData.push(data);
+        mockSupabase.select.mockImplementation(() => {
+          mockSupabase.single.mockImplementation(() => {
+            return Promise.resolve({ 
+              data: { id: 'new-signup', ...data },
+              error: null 
+            });
+          });
+          return mockSupabase;
+        });
+        return mockSupabase;
+      });
       
       // Try to signup for a slot with manipulated data
       const maliciousSignup = {
@@ -906,9 +1052,17 @@ describe('/api/events/[id]/volunteer', () => {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      // The validation and database operations should use the authenticated user ID
-      // and verified event/slot relationships, not client-provided values
-      expect(mockAuth).toHaveBeenCalled();
+      const response = await POST(request, { params: Promise.resolve({ id: eventId }) });
+      
+      expect(response.status).toBe(200);
+      
+      // Verify that the inserted data uses the authenticated user ID, not the tampered one
+      expect(capturedInsertData).toHaveLength(1);
+      expect(capturedInsertData[0].user_id).toBe(authenticatedUserId);
+      expect(capturedInsertData[0].user_id).not.toBe('different-user-id');
+      
+      // Verify the slot_id is the one from the request (valid)
+      expect(capturedInsertData[0].slot_id).toBe(slotId);
     });
 
     it('should allow board members to volunteer for board-only events', async () => {
@@ -945,10 +1099,21 @@ describe('/api/events/[id]/volunteer', () => {
         }
       });
 
-      mockSupabase.select.mockImplementation((fields: string) => {
-        if (fields === 'quantity') {
-          return Promise.resolve({ data: [], error: null }); // No existing signups
+      // Override the from() mock for board member signup
+      let fromCallCount = 0;
+      mockSupabase.from.mockImplementation((table: string) => {
+        fromCallCount++;
+        
+        // For the volunteer signups quantity query
+        if (table === 'event_volunteer_signups' && fromCallCount === 5) {
+          const quantityMock = {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockResolvedValue({ data: [], error: null }) // No existing signups
+            })
+          };
+          return quantityMock;
         }
+        
         return mockSupabase;
       });
 
