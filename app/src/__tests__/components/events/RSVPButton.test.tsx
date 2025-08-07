@@ -17,10 +17,10 @@ import { useToast } from '@/hooks/use-toast';
 import { RSVPButton } from '@/components/events/RSVPButton';
 import { EventWithCounts } from '@/lib/events/types';
 
-// Mock dependencies
-jest.mock('next/navigation');
+// Mock toast hook
 jest.mock('@/hooks/use-toast');
 
+// Get the mocked router from the global mock
 const mockRouter = {
   push: jest.fn(),
   refresh: jest.fn(),
@@ -28,8 +28,14 @@ const mockRouter = {
 
 const mockToast = jest.fn();
 
-(useRouter as jest.Mock).mockReturnValue(mockRouter);
-(useToast as jest.Mock).mockReturnValue({ toast: mockToast });
+// Set up mocks
+beforeEach(() => {
+  // The router is already mocked in jest.setup.js, just update its return value
+  const navigation = require('next/navigation');
+  navigation.useRouter.mockReturnValue(mockRouter);
+  
+  (useToast as jest.Mock).mockReturnValue({ toast: mockToast });
+});
 
 // Mock fetch globally
 global.fetch = jest.fn();

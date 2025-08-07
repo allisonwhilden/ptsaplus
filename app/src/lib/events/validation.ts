@@ -97,6 +97,13 @@ export const eventListParamsSchema = z.object({
 export function validateEventTimes(startTime: string, endTime: string): boolean {
   const start = new Date(startTime);
   const end = new Date(endTime);
+  const now = new Date();
+  
+  // Start time must be in the future (with 1 minute grace period for timing issues)
+  const oneMinuteAgo = new Date(now.getTime() - 60000);
+  if (start <= oneMinuteAgo) return false;
+  
+  // End time must be after start time
   return end > start;
 }
 
@@ -105,7 +112,11 @@ export function validateCapacity(
   newAttendees: number,
   capacity?: number
 ): boolean {
-  if (!capacity) return true;
+  // If capacity is undefined or null, no limit
+  if (capacity === undefined || capacity === null) return true;
+  // If capacity is 0, no attendees allowed
+  if (capacity === 0) return currentAttendees + newAttendees === 0;
+  // Otherwise check against capacity
   return currentAttendees + newAttendees <= capacity;
 }
 

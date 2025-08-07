@@ -3,27 +3,42 @@ import '@testing-library/jest-dom'
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
-  useRouter() {
-    return {
-      push: jest.fn(),
-      pathname: '/',
-      query: {},
-      asPath: '/',
-    }
-  },
-  useSearchParams() {
-    return new URLSearchParams()
-  },
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+    pathname: '/',
+    query: {},
+    asPath: '/',
+  })),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
+  usePathname: jest.fn(() => '/'),
+  redirect: jest.fn(),
+  notFound: jest.fn(),
 }))
 
 // Mock Next.js server components
 jest.mock('next/server', () => ({
   NextRequest: jest.fn().mockImplementation((url, init) => {
+    const parsedUrl = new URL(url);
     return {
       url,
+      nextUrl: parsedUrl,
       method: init?.method || 'GET',
       headers: new Map(Object.entries(init?.headers || {})),
-      json: async () => JSON.parse(init?.body || '{}'),
+      json: async () => {
+        if (init?.body) {
+          try {
+            return JSON.parse(init.body);
+          } catch {
+            return {};
+          }
+        }
+        return {};
+      },
       text: async () => init?.body || '',
     }
   }),
@@ -35,6 +50,12 @@ jest.mock('next/server', () => ({
         headers: new Map(),
       };
       return response;
+    }),
+    redirect: jest.fn((url, status = 302) => {
+      return {
+        status,
+        headers: new Map([['Location', url]]),
+      };
     }),
   },
 }))

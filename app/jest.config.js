@@ -11,6 +11,11 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/components/(.*)$': '<rootDir>/src/components/$1',
+    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/app/(.*)$': '<rootDir>/src/app/$1',
+    '^@/types/(.*)$': '<rootDir>/src/types/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}',
@@ -19,10 +24,13 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/src/__tests__/utils/',
+    '/.next/',
+    '/out/',
   ],
   transformIgnorePatterns: [
-    'node_modules/(?!(isows|@supabase|@clerk))',
+    'node_modules/(?!(isows|@supabase|@clerk|jose|uuid))',
   ],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   coverageThreshold: {
     global: {
       branches: 80,
