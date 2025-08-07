@@ -12,17 +12,18 @@ import { EventDetails } from '@/components/events/EventDetails';
 import { canUserViewEvent, canUserEditEvent, canUserViewAttendees } from '@/lib/events/validation';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: event } = await supabase
     .from('events')
     .select('title, description')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
   
   if (!event) {
@@ -66,7 +67,7 @@ export default async function EventPage({ params }: PageProps) {
         signups:event_volunteer_signups(*)
       )
     `)
-    .eq('id', params.id)
+    .eq('id', eventId)
     .single();
   
   if (error || !event) {
@@ -84,7 +85,7 @@ export default async function EventPage({ params }: PageProps) {
     const { data: rsvp } = await supabase
       .from('event_rsvps')
       .select('*')
-      .eq('event_id', params.id)
+      .eq('event_id', eventId)
       .eq('user_id', userId)
       .single();
     
@@ -92,10 +93,20 @@ export default async function EventPage({ params }: PageProps) {
   }
   
   // Transform volunteer slots
-  const volunteerSlotsWithCounts = event.volunteer_slots?.map((slot: any) => ({
+  interface VolunteerSignup {
+    quantity: number;
+  }
+  
+  interface VolunteerSlot {
+    signups: VolunteerSignup[];
+    quantity: number;
+    [key: string]: unknown;
+  }
+  
+  const volunteerSlotsWithCounts = event.volunteer_slots?.map((slot: VolunteerSlot) => ({
     ...slot,
-    total_signups: slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0),
-    available_spots: slot.quantity - slot.signups.reduce((sum: number, signup: any) => sum + signup.quantity, 0),
+    total_signups: slot.signups.reduce((sum: number, signup: VolunteerSignup) => sum + signup.quantity, 0),
+    available_spots: slot.quantity - slot.signups.reduce((sum: number, signup: VolunteerSignup) => sum + signup.quantity, 0),
   })) || [];
   
   // Build event details
