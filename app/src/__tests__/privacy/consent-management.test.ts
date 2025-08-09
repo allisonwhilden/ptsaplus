@@ -18,30 +18,24 @@ describe('Consent Management API', () => {
   const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
   
   const mockSupabase = {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          order: jest.fn(() => ({
-            data: [],
-            error: null,
-          })),
-          in: jest.fn(() => ({
-            order: jest.fn(() => ({
-              data: [],
-              error: null,
-            })),
-          })),
-        })),
-      })),
-      insert: jest.fn(() => ({
-        select: jest.fn(() => ({
-          single: jest.fn(),
-        })),
-      })),
-      update: jest.fn(() => ({
-        eq: jest.fn(),
-      })),
-    })),
+    from: jest.fn(() => {
+      const chain = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        in: jest.fn().mockReturnThis(),
+        insert: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: null, error: null }),
+        data: null as any,
+        error: null as any,
+      };
+      // Make the chain itself a thenable (awaitable)
+      (chain as any).then = (resolve: any) => {
+        resolve({ data: chain.data, error: chain.error });
+      };
+      return chain;
+    }),
   };
 
   beforeEach(() => {
@@ -66,7 +60,8 @@ describe('Consent Management API', () => {
       };
 
       mockAuth.mockReturnValue({ userId } as any);
-      mockSupabase.from().insert().select().single.mockResolvedValue({
+      const mockChain = mockSupabase.from();
+      mockChain.single.mockResolvedValueOnce({
         data: createdConsent,
         error: null,
       });
@@ -184,10 +179,9 @@ describe('Consent Management API', () => {
       ];
 
       mockAuth.mockReturnValue({ userId } as any);
-      (mockSupabase.from().select().eq().order as any).mockResolvedValue({
-        data: consentRecords,
-        error: null,
-      });
+      const mockChain = mockSupabase.from();
+      mockChain.data = consentRecords;
+      mockChain.error = null;
 
       const request = new NextRequest('http://localhost:3000/api/privacy/consent');
       const response = await GET(request);
@@ -203,21 +197,14 @@ describe('Consent Management API', () => {
       const userId = 'user_123';
       mockAuth.mockReturnValue({ userId } as any);
 
-      const mockQuery = {
-        eq: jest.fn(() => ({
-          order: jest.fn(() => ({
-            data: [],
-            error: null,
-          })),
-        })),
-      };
-      
-      mockSupabase.from().select.mockReturnValue(mockQuery as any);
+      const mockChain = mockSupabase.from();
+      mockChain.data = [];
+      mockChain.error = null;
 
       const request = new NextRequest('http://localhost:3000/api/privacy/consent?type=terms_of_service');
       await GET(request);
 
-      expect(mockQuery.eq).toHaveBeenCalledWith('consent_type', 'terms_of_service');
+      expect(mockChain.eq).toHaveBeenCalledWith('consent_type', 'terms_of_service');
     });
   });
 

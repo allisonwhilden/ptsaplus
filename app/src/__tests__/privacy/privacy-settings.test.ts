@@ -18,25 +18,22 @@ describe('Privacy Settings API', () => {
   const mockCreateClient = createClient as jest.MockedFunction<typeof createClient>;
   
   const mockSupabase = {
-    from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          single: jest.fn(),
-        })),
-      })),
-      insert: jest.fn(() => ({
-        select: jest.fn(() => ({
-          single: jest.fn(),
-        })),
-      })),
-      update: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          select: jest.fn(() => ({
-            single: jest.fn(),
-          })),
-        })),
-      })),
-    })),
+    from: jest.fn(() => {
+      const chain = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        insert: jest.fn().mockReturnThis(),
+        update: jest.fn().mockReturnThis(),
+        single: jest.fn().mockResolvedValue({ data: null, error: null }),
+        data: null as any,
+        error: null as any,
+      };
+      // Make the chain itself a thenable (awaitable)
+      (chain as any).then = (resolve: any) => {
+        resolve({ data: chain.data, error: chain.error });
+      };
+      return chain;
+    }),
   };
 
   beforeEach(() => {
@@ -71,7 +68,8 @@ describe('Privacy Settings API', () => {
       };
 
       mockAuth.mockReturnValue({ userId } as any);
-      mockSupabase.from().select().eq().single.mockResolvedValue({
+      const mockChain = mockSupabase.from();
+      mockChain.single.mockResolvedValueOnce({
         data: mockSettings,
         error: null,
       });
@@ -101,14 +99,15 @@ describe('Privacy Settings API', () => {
 
       mockAuth.mockReturnValue({ userId } as any);
       
+      const mockChain = mockSupabase.from();
       // First call returns no data (PGRST116 error)
-      mockSupabase.from().select().eq().single.mockResolvedValue({
+      mockChain.single.mockResolvedValueOnce({
         data: null,
         error: { code: 'PGRST116' },
       });
 
       // Insert call creates new settings
-      mockSupabase.from().insert().select().single.mockResolvedValue({
+      mockChain.single.mockResolvedValueOnce({
         data: newSettings,
         error: null,
       });
@@ -147,14 +146,15 @@ describe('Privacy Settings API', () => {
 
       mockAuth.mockReturnValue({ userId } as any);
       
+      const mockChain = mockSupabase.from();
       // Get current settings
-      mockSupabase.from().select().eq().single.mockResolvedValue({
+      mockChain.single.mockResolvedValueOnce({
         data: currentSettings,
         error: null,
       });
 
       // Update settings
-      mockSupabase.from().update().eq().select().single.mockResolvedValue({
+      mockChain.single.mockResolvedValueOnce({
         data: updatedSettings,
         error: null,
       });
@@ -194,12 +194,13 @@ describe('Privacy Settings API', () => {
         body: JSON.stringify(invalidData),
       });
 
-      mockSupabase.from().select().eq().single.mockResolvedValue({
+      const mockChain = mockSupabase.from();
+      mockChain.single.mockResolvedValueOnce({
         data: { id: 'settings_123', user_id: userId },
         error: null,
       });
 
-      mockSupabase.from().update().eq().select().single.mockResolvedValue({
+      mockChain.single.mockResolvedValueOnce({
         data: { id: 'settings_123', user_id: userId, show_email: true },
         error: null,
       });
