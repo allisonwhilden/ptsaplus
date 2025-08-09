@@ -391,7 +391,7 @@ async function convertChildToRegularAccount(childUserId: string): Promise<void> 
  * Note: These are configured in vercel.json and executed via API routes
  * - /api/cron/data-retention - Daily at 2 AM
  * - /api/cron/coppa-age-out - Weekly on Sunday at 3 AM  
- * - /api/cron/temp-cleanup - Hourly
+ * - /api/cron/temp-cleanup - Daily at 4 AM (limited by Vercel hobby plan)
  */
 export function scheduleRetentionJobs(): void {
   // Vercel crons are configured in vercel.json
