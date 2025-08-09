@@ -67,7 +67,7 @@ export function ConsentManager({ onComplete }: { onComplete?: () => void }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [consents, setConsents] = useState<Record<ConsentType, boolean>>({} as Record<ConsentType, boolean>);
-  const [existingConsents, setExistingConsents] = useState<Record<ConsentType, ConsentRecord>>({});
+  const [existingConsents, setExistingConsents] = useState<Record<ConsentType, ConsentRecord>>({} as Record<ConsentType, ConsentRecord>);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedConsent, setSelectedConsent] = useState<ConsentOption | null>(null);
 

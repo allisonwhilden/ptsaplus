@@ -7,6 +7,9 @@ import { createClient } from '@/config/supabase';
 import { AuditAction, AuditLog } from './types';
 import { headers } from 'next/headers';
 
+// Re-export AuditAction so other modules can import it from here
+export { AuditAction } from './types';
+
 interface AuditContext {
   userId?: string;
   action: AuditAction | string;
@@ -24,7 +27,7 @@ interface AuditContext {
 export async function logAuditEvent(context: AuditContext): Promise<string | null> {
   try {
     const supabase = createClient();
-    const headersList = headers();
+    const headersList = await headers();
     
     // Extract request information
     const ipAddress = headersList.get('x-forwarded-for')?.split(',')[0] || 
@@ -35,7 +38,7 @@ export async function logAuditEvent(context: AuditContext): Promise<string | nul
     // Get session ID from cookies if available
     const sessionId = headersList.get('cookie')
       ?.split(';')
-      .find(c => c.trim().startsWith('session_id='))
+      .find((c: string) => c.trim().startsWith('session_id='))
       ?.split('=')[1] || undefined;
 
     // Log to database using the stored function

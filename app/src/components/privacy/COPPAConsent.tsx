@@ -76,13 +76,8 @@ export function COPPAConsent({ childUserId, childName, onComplete }: COPPAConsen
       const { error: stripeError } = await stripe.redirectToCheckout({
         lineItems: [{ price: 'price_coppa_verification', quantity: 1 }],
         mode: 'payment',
-        successUrl: `${window.location.origin}/coppa/success?child=${childUserId}`,
-        cancelUrl: `${window.location.origin}/coppa/cancel`,
-        metadata: {
-          parent_user_id: userId!,
-          child_user_id: childUserId,
-          purpose: 'coppa_verification'
-        }
+        successUrl: `${window.location.origin}/coppa/success?child=${childUserId}&parent=${userId}`,
+        cancelUrl: `${window.location.origin}/coppa/cancel`
       });
 
       if (stripeError) {

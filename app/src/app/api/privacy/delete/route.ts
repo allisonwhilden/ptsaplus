@@ -12,7 +12,7 @@ import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return NextResponse.json(
@@ -192,7 +192,8 @@ async function processDeletion(userId: string, requestId: string) {
 
     // 8. Delete from Clerk
     try {
-      await clerkClient.users.deleteUser(userId);
+      const clerk = await clerkClient();
+      await clerk.users.deleteUser(userId);
       deletionResults.clerk_deleted = true;
     } catch (clerkError) {
       console.error('Error deleting from Clerk:', clerkError);

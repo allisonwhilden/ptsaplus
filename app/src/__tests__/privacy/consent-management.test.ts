@@ -184,7 +184,7 @@ describe('Consent Management API', () => {
       ];
 
       mockAuth.mockReturnValue({ userId } as any);
-      mockSupabase.from().select().eq().order.mockResolvedValue({
+      (mockSupabase.from().select().eq().order as any).mockResolvedValue({
         data: consentRecords,
         error: null,
       });

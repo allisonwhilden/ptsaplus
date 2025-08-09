@@ -6,7 +6,7 @@
 import { createClient } from '@/config/supabase';
 import { logAuditEvent } from './audit';
 import { encryptField } from './encryption';
-import cron from 'node-cron';
+// Note: We use Vercel crons instead of node-cron for serverless compatibility
 
 // Retention periods in days
 export const RETENTION_PERIODS = {
@@ -41,7 +41,7 @@ interface RetentionPolicy {
   dateField: string;
   retentionDays: number;
   action: 'delete' | 'anonymize' | 'archive';
-  condition?: string;
+  condition?: Record<string, any>;
   description: string;
 }
 
@@ -52,7 +52,7 @@ const RETENTION_POLICIES: RetentionPolicy[] = [
     dateField: 'membership_expires_at',
     retentionDays: RETENTION_PERIODS.inactive_member,
     action: 'anonymize',
-    condition: "membership_status = 'expired'",
+    condition: { membership_status: 'expired' },
     description: 'Anonymize expired member records after 1 year'
   },
   {
@@ -81,7 +81,7 @@ const RETENTION_POLICIES: RetentionPolicy[] = [
     dateField: 'expires_at',
     retentionDays: 0, // Check expiration date directly
     action: 'delete',
-    condition: "status = 'completed' AND expires_at < CURRENT_TIMESTAMP",
+    condition: { status: 'completed' },
     description: 'Delete expired export files'
   }
 ];
@@ -387,26 +387,16 @@ async function convertChildToRegularAccount(childUserId: string): Promise<void> 
 }
 
 /**
- * Schedule retention jobs using cron
+ * Schedule retention jobs using Vercel crons
+ * Note: These are configured in vercel.json and executed via API routes
+ * - /api/cron/data-retention - Daily at 2 AM
+ * - /api/cron/coppa-age-out - Weekly on Sunday at 3 AM  
+ * - /api/cron/temp-cleanup - Hourly
  */
 export function scheduleRetentionJobs(): void {
-  // Run daily at 2 AM
-  cron.schedule('0 2 * * *', async () => {
-    console.log('Running scheduled data retention policies...');
-    const result = await runRetentionPolicies();
-    console.log('Retention policies completed:', result);
-  });
-
-  // Check for COPPA age-outs weekly
-  cron.schedule('0 3 * * 0', async () => {
-    console.log('Checking for COPPA age-outs...');
-    await processCOPPAAgeOut();
-  });
-
-  // Clean up temporary data hourly
-  cron.schedule('0 * * * *', async () => {
-    await cleanupTemporaryData();
-  });
+  // Vercel crons are configured in vercel.json
+  // This function is kept for documentation purposes
+  console.log('Retention jobs are scheduled via Vercel crons');
 }
 
 /**

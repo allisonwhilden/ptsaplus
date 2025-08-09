@@ -9,7 +9,8 @@ import { createClient } from '@/config/supabase';
 
 export async function GET(request: NextRequest) {
   // Verify this is called by Vercel Cron
-  const authHeader = headers().get('authorization');
+  const headersList = await headers();
+  const authHeader = headersList.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
