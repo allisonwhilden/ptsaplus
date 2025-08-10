@@ -106,10 +106,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - Added comprehensive rate limiting
     - Automated retention policies (7 years financial, 3 years audit)
 
+✅ **Communication System - Completed Jan 10**
+  - **Email Service Integration**:
+    - Resend email service with development/production modes
+    - Privacy-compliant email sending with consent verification
+    - Bulk email support with individual consent checking
+    - Email queue management for scheduled sending
+    - Secure email logging with SHA-256 hashing (no PII stored)
+  - **Email Templates** (6 volunteer-friendly templates):
+    - Welcome email with 5-minute onboarding guide
+    - Payment confirmation with instant receipt
+    - Event reminders with mobile-friendly layout
+    - Announcements with scannable format
+    - Volunteer reminders with day-of contact info
+    - Meeting minutes with action items separated
+  - **Announcement System**:
+    - Role-based creation (admin/board only)
+    - Audience targeting (all, members, board, committees, teachers)
+    - Scheduled publishing with expiration dates
+    - Pin important announcements
+    - Read tracking without storing personal data
+    - Automatic email distribution with consent checking
+  - **Communication Preferences**:
+    - Granular category controls (announcements, events, payments, volunteer, meetings)
+    - Email frequency settings (immediate, daily, weekly, monthly)
+    - Unsubscribe management with token verification
+    - Category-specific opt-outs
+    - COPPA parental consent tracking
+  - **Database Tables**:
+    - `communication_preferences` - User email settings
+    - `email_logs` - Secure audit trail with hashed emails
+    - `email_queue` - Scheduled email management
+    - `announcements` - Announcement storage
+    - `announcement_views` - Read receipt tracking
+  - **API Endpoints**:
+    - `/api/announcements` - CRUD operations for announcements
+    - `/api/announcements/[id]` - Individual announcement operations
+    - `/api/communications/preferences` - Preference management
+    - `/api/unsubscribe` - Handle unsubscribe requests
+  - **Pages**:
+    - `/unsubscribe` - User-friendly unsubscribe page
+  - **Privacy & Compliance**:
+    - FERPA-compliant 7-year retention with auto-cleanup
+    - COPPA parental consent before emailing minors
+    - CAN-SPAM compliant with unsubscribe headers
+    - Data minimization - only email hashes stored in logs
+    - Consent verification before every email send
+  - **Implementation validated with**:
+    - privacy-guardian: Full FERPA/COPPA compliance review
+    - volunteer-advocate: Email template usability review
+
 ### In Progress
-🔄 Email communications
 🔄 AI-assisted features
 🔄 Payment reporting and treasurer dashboard
+🔄 Communication UI components (announcements, email composer)
 
 ### When working on this project:
 1. Build on the existing foundation - authentication and member management are complete
@@ -1366,6 +1416,11 @@ CLERK_WEBHOOK_SECRET=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+
+# Email Service (Resend) ✅
+RESEND_API_KEY= # Required for email sending
+EMAIL_FROM= # Optional: Default sender email (e.g., notifications@ptsaplus.org)
+EMAIL_REPLY_TO= # Optional: Reply-to email address
 
 # OpenAI (when implementing AI features)
 OPENAI_API_KEY=
