@@ -6,16 +6,12 @@
   "devCommand": "pnpm dev",
   "crons": [
     {
-      "path": "/api/cron/data-retention",
+      "path": "/api/cron/daily-maintenance",
       "schedule": "0 2 * * *"
     },
     {
       "path": "/api/cron/coppa-age-out",
       "schedule": "0 3 * * 0"
-    },
-    {
-      "path": "/api/cron/temp-cleanup",
-      "schedule": "0 4 * * *"
     }
   ]
 }
