@@ -6,8 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { applyRetentionPolicies } from '@/lib/privacy/retention';
-import { cleanupTemporaryData } from '@/lib/privacy/retention';
+import { runRetentionPolicies, cleanupTemporaryData } from '@/lib/privacy/retention';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,10 +27,12 @@ export async function GET(request: NextRequest) {
 
     // Task 1: Apply data retention policies
     try {
-      const retentionResult = await applyRetentionPolicies();
+      const retentionResult = await runRetentionPolicies();
+      const totalProcessed = retentionResult.results.reduce((sum, r) => sum + r.processed, 0);
+      const totalErrors = retentionResult.results.reduce((sum, r) => sum + r.errors.length, 0);
       results.retention = {
-        success: true,
-        message: `Processed ${retentionResult.processed} items, ${retentionResult.errors.length} errors`
+        success: retentionResult.success,
+        message: `Processed ${totalProcessed} items across ${retentionResult.results.length} policies, ${totalErrors} errors`
       };
     } catch (error) {
       console.error('Data retention error:', error);
