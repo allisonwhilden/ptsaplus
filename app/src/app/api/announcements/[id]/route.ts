@@ -20,11 +20,11 @@ const updateAnnouncementSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
-    const announcementId = params.id
+    const { id: announcementId } = await params
 
     const announcement = await getAnnouncementById(announcementId, userId || undefined)
 
@@ -51,7 +51,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -63,7 +63,7 @@ export async function PUT(
       )
     }
 
-    const announcementId = params.id
+    const { id: announcementId } = await params
     const body = await request.json()
     const validation = updateAnnouncementSchema.safeParse(body)
 
@@ -105,7 +105,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -117,7 +117,7 @@ export async function DELETE(
       )
     }
 
-    const announcementId = params.id
+    const { id: announcementId } = await params
     const result = await deleteAnnouncement(userId, announcementId)
 
     if (!result.success) {

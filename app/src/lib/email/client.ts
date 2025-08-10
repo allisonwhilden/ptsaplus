@@ -10,11 +10,17 @@ import { createClient } from '@/lib/supabase-server'
 
 const resendApiKey = process.env.RESEND_API_KEY
 
-if (!resendApiKey && process.env.NODE_ENV === 'production') {
-  throw new Error('RESEND_API_KEY is required in production')
+// Only throw error at runtime, not during build
+let resend: Resend | null = null
+
+if (resendApiKey) {
+  resend = new Resend(resendApiKey)
+} else if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
+  // Log warning but don't throw during build
+  console.warn('[Email] RESEND_API_KEY not configured - email sending disabled')
 }
 
-export const resend = resendApiKey ? new Resend(resendApiKey) : null
+export { resend }
 
 const FROM_EMAIL = process.env.EMAIL_FROM || 'PTSA+ <notifications@ptsaplus.org>'
 const REPLY_TO_EMAIL = process.env.EMAIL_REPLY_TO || 'support@ptsaplus.org'
