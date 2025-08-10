@@ -27,12 +27,30 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    
+    // SERVER-SIDE VALIDATION: Never trust client data
     const { 
       childUserId, 
       verificationMethod, 
       verificationData,
       childBirthDate 
     } = body;
+    
+    // Validate childUserId format and existence
+    if (!childUserId || typeof childUserId !== 'string' || childUserId.length > 255) {
+      return NextResponse.json(
+        { error: 'Invalid child user ID' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate birth date and recalculate age server-side
+    if (!childBirthDate || !Date.parse(childBirthDate)) {
+      return NextResponse.json(
+        { error: 'Invalid birth date' },
+        { status: 400 }
+      );
+    }
 
     // Validate verification method
     const validMethods = [
@@ -65,11 +83,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate age from birth date
+    // SERVER-SIDE AGE CALCULATION: Never trust client calculations
     const birthDate = new Date(childBirthDate);
-    const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    const today = new Date();
+    
+    // Precise age calculation considering months and days
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+    
+    // Adjust age if birthday hasn't occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+    
+    // Log age calculation for audit trail
+    console.log(`COPPA Age Verification: birthDate=${childBirthDate}, calculatedAge=${age}`);
     
     if (age >= 13) {
+      await logAuditEvent({
+        userId,
+        action: 'coppa.verification.rejected',
+        resourceType: 'child_account',
+        metadata: {
+          reason: 'Child is 13 or older',
+          childUserId,
+          birthDate: childBirthDate,
+          calculatedAge: age
+        }
+      });
+      
       return NextResponse.json(
         { error: 'Parental consent not required for users 13 and older' },
         { status: 400 }
