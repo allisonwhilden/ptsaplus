@@ -106,7 +106,7 @@ export function MeetingMinutesEmail({
       {nextMeetingDate && (
         <Section style={nextMeetingBox}>
           <Text style={nextMeetingTitle}>NEXT MEETING</Text>
-          <Text style={nextMeetingDate}>
+          <Text style={nextMeetingDateStyle}>
             📅 {format(nextMeetingDate, 'EEEE, MMMM d, yyyy \'at\' h:mm a')}
           </Text>
           <Button 
@@ -312,7 +312,7 @@ const nextMeetingTitle = {
   marginBottom: '12px',
 }
 
-const nextMeetingDate = {
+const nextMeetingDateStyle = {
   fontSize: '18px',
   fontWeight: 'bold',
   color: '#155724',

@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase-server'
 import { AnnouncementData } from '@/lib/email/types'
 import { sendBulkEmailsSecure } from '@/lib/email/client'
 import { AnnouncementEmail } from '@/lib/email/templates'
-import { render } from '@react-email/render'
 
 export interface CreateAnnouncementInput {
   title: string

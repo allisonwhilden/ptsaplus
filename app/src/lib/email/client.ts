@@ -4,8 +4,7 @@ import {
   logEmailSecure, 
   generateUnsubscribeToken, 
   checkEmailConsent,
-  getUserEmailSecure,
-  hashEmail
+  getUserEmailSecure
 } from './privacy'
 import { createClient } from '@/lib/supabase-server'
 
