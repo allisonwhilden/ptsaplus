@@ -132,7 +132,7 @@ export function hashField(data: string): string {
 /**
  * Encrypt an entire object's sensitive fields
  */
-export function encryptObject<T extends Record<string, any>>(
+export function encryptObject<T extends Record<string, unknown>>(
   obj: T,
   fieldsToEncrypt: Array<keyof T>,
   dataType: 'pii' | 'financial' | 'health' = 'pii'
@@ -151,7 +151,7 @@ export function encryptObject<T extends Record<string, any>>(
 /**
  * Decrypt an entire object's sensitive fields
  */
-export function decryptObject<T extends Record<string, any>>(
+export function decryptObject<T extends Record<string, unknown>>(
   obj: T,
   fieldsToDecrypt: Array<keyof T>,
   dataType: 'pii' | 'financial' | 'health' = 'pii'
@@ -221,9 +221,9 @@ export function generateEncryptionKey(): string {
  * Rotate encryption keys
  */
 export async function rotateEncryptionKeys(
-  oldKey: string,
-  newKey: string,
-  reencryptCallback: (oldData: string, newData: string) => Promise<void>
+  _oldKey: string,
+  _newKey: string,
+  _reencryptCallback: (oldData: string, newData: string) => Promise<void>
 ): Promise<void> {
   // This would be implemented to:
   // 1. Decrypt all data with old key
@@ -242,18 +242,18 @@ export function encryptionMiddleware(
   fieldsConfig: Record<string, 'pii' | 'financial' | 'health'>
 ) {
   return {
-    request: (data: any) => {
+    request: (data: Record<string, unknown>) => {
       for (const [field, dataType] of Object.entries(fieldsConfig)) {
-        if (data[field]) {
-          data[field] = encryptField(data[field], dataType);
+        if (data[field] && typeof data[field] === 'string') {
+          data[field] = encryptField(data[field] as string, dataType);
         }
       }
       return data;
     },
-    response: (data: any) => {
+    response: (data: Record<string, unknown>) => {
       for (const [field, dataType] of Object.entries(fieldsConfig)) {
-        if (data[field]) {
-          data[field] = decryptField(data[field], dataType);
+        if (data[field] && typeof data[field] === 'string') {
+          data[field] = decryptField(data[field] as string, dataType);
         }
       }
       return data;

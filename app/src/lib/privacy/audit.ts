@@ -88,14 +88,15 @@ export async function logAuditEvent(context: AuditContext): Promise<string | nul
 /**
  * Middleware to automatically log API actions
  */
-export function withAuditLogging<T extends (...args: any[]) => any>(
+export function withAuditLogging<T extends (...args: unknown[]) => unknown>(
   action: AuditAction | string,
   resourceType: string,
   handler: T
 ): T {
   return (async (...args: Parameters<T>) => {
     const request = args[0] as Request;
-    const resourceId = args[1]?.params?.id || undefined;
+    const context = args[1] as { params?: { id?: string } } | undefined;
+    const resourceId = context?.params?.id || undefined;
     
     // Log the action attempt
     await logAuditEvent({

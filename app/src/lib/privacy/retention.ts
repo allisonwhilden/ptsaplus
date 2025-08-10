@@ -5,7 +5,6 @@
 
 import { createClient } from '@/config/supabase';
 import { logAuditEvent } from './audit';
-import { encryptField } from './encryption';
 // Note: We use Vercel crons instead of node-cron for serverless compatibility
 
 // Retention periods in days
@@ -41,7 +40,7 @@ interface RetentionPolicy {
   dateField: string;
   retentionDays: number;
   action: 'delete' | 'anonymize' | 'archive';
-  condition?: Record<string, any>;
+  condition?: Record<string, unknown>;
   description: string;
 }
 
@@ -223,7 +222,7 @@ async function processRetentionPolicy(policy: RetentionPolicy): Promise<{
 /**
  * Anonymize a record based on table type
  */
-function anonymizeRecord(record: any, tableName: string): any {
+function anonymizeRecord(record: Record<string, unknown>, tableName: string): Record<string, unknown> {
   const anonymizedId = `ANON_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   switch (tableName) {
@@ -402,7 +401,7 @@ export function scheduleRetentionJobs(): void {
 /**
  * Clean up temporary data
  */
-async function cleanupTemporaryData(): Promise<void> {
+export async function cleanupTemporaryData(): Promise<void> {
   const supabase = createClient();
   
   // Clean expired sessions
@@ -471,12 +470,12 @@ export async function getRetentionStatus(): Promise<{
 }
 
 // Notification helpers (implement based on your notification system)
-async function notifyAdminsOfRetentionErrors(results: any[]): Promise<void> {
+async function notifyAdminsOfRetentionErrors(results: unknown[]): Promise<void> {
   // Implementation would depend on your notification system
   console.error('Retention policy errors:', results);
 }
 
 async function sendCOPPAAgeOutNotification(childUserId: string, parentUserId: string): Promise<void> {
   // Implementation would depend on your notification system
-  console.log(`COPPA age-out notification: Child ${childUserId} has turned 13`);
+  console.log(`COPPA age-out notification: Child ${childUserId} has turned 13, notifying parent ${parentUserId}`);
 }

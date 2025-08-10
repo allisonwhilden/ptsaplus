@@ -191,11 +191,22 @@ export async function withRateLimit(
  * Distributed rate limiting using Redis/Upstash
  * For production use with multiple servers
  */
+interface RedisClient {
+  pipeline(): {
+    zremrangebyscore(key: string, min: number, max: number): void;
+    zcard(key: string): void;
+    zadd(key: string, score: number, member: string): void;
+    expire(key: string, seconds: number): void;
+    exec(): Promise<[unknown, unknown][]>;
+  };
+  zrange(key: string, start: number, stop: number, withScores: string): Promise<string[]>;
+}
+
 export class DistributedRateLimiter {
-  private redisClient: any; // Replace with actual Redis client type
+  private redisClient: RedisClient;
   
-  constructor(redisClient: any) {
-    this.redisClient = redisClient;
+  constructor(redisClient: unknown) {
+    this.redisClient = redisClient as RedisClient;
   }
   
   async isRateLimited(
@@ -227,7 +238,7 @@ export class DistributedRateLimiter {
     pipeline.expire(key, Math.ceil(limit.windowMs / 1000));
     
     const results = await pipeline.exec();
-    const count = results[1][1];
+    const count = results[1][1] as number;
     
     if (count >= limit.maxRequests) {
       // Get oldest timestamp to calculate reset time

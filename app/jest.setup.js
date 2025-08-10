@@ -75,7 +75,7 @@ global.Response = class Response {
 
 // Mock Clerk
 jest.mock('@clerk/nextjs/server', () => ({
-  auth: jest.fn(() => ({ userId: 'test-user-id' })),
+  auth: jest.fn(() => Promise.resolve({ userId: 'test-user-id' })),
 }))
 
 // Mock rate limiting to avoid test failures
@@ -89,10 +89,24 @@ jest.mock('@/lib/rate-limit', () => ({
   }
 }))
 
+// Mock privacy rate limiting
+jest.mock('@/lib/privacy/rate-limit', () => ({
+  withRateLimit: jest.fn((request, key, handler) => handler()),
+}))
+
+// Mock Supabase client
+jest.mock('@/config/supabase', () => ({
+  createClient: jest.fn(),
+  supabase: {}
+}))
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test_mock'
 process.env.STRIPE_SECRET_KEY = 'sk_test_mock'
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_mock'
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test_anon_key'
+process.env.SUPABASE_SERVICE_KEY = 'test_service_key'
 
 // Mock headers function
 jest.mock('next/headers', () => ({

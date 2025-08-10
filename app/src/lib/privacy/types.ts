@@ -36,7 +36,7 @@ export interface ConsentRecord {
   consentVersion?: string;
   ipAddress?: string;
   userAgent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
 }
 
@@ -46,9 +46,9 @@ export interface AuditLog {
   action: string;
   resourceType?: string;
   resourceId?: string;
-  previousValue?: Record<string, any>;
-  newValue?: Record<string, any>;
-  metadata?: Record<string, any>;
+  previousValue?: Record<string, unknown>;
+  newValue?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   sessionId?: string;
@@ -83,7 +83,7 @@ export interface DataExportRequest {
   completedAt?: Date;
   exportUrl?: string;
   expiresAt?: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Privacy validation schemas
