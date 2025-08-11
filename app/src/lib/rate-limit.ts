@@ -149,5 +149,26 @@ export const RATE_LIMITS = {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 10,      // 10 signups per user per minute
     maxRequestsPerIP: 20  // 20 signups per IP per minute
+  },
+  
+  // Announcement operations (admin/board only)
+  announcements: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5,       // 5 requests per user per minute
+    maxRequestsPerIP: 10  // 10 requests per IP per minute
+  },
+  
+  // Communication preferences
+  preferences: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5,       // 5 updates per user per minute
+    maxRequestsPerIP: 10  // 10 updates per IP per minute
+  },
+  
+  // Unsubscribe operations
+  unsubscribe: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 3,       // 3 attempts per user per minute
+    maxRequestsPerIP: 5   // 5 attempts per IP per minute
   }
 };

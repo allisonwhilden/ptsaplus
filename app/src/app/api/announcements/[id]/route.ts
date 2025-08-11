@@ -7,6 +7,7 @@ import {
   markAnnouncementAsRead 
 } from '@/lib/announcements/service'
 import { z } from 'zod'
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit'
 
 const updateAnnouncementSchema = z.object({
   title: z.string().min(1).max(255).optional(),
@@ -62,14 +63,20 @@ export async function PUT(
         { status: 401 }
       )
     }
+    
+    // Apply rate limiting
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.announcements, userId)
+    if (rateLimitResponse) return rateLimitResponse
 
     const { id: announcementId } = await params
     const body = await request.json()
     const validation = updateAnnouncementSchema.safeParse(body)
 
     if (!validation.success) {
+      // Secure error handling - don't expose validation details
+      console.error('[API] Validation error:', validation.error.issues)
       return NextResponse.json(
-        { error: 'Invalid request data', details: validation.error.issues },
+        { error: 'Invalid request data' },
         { status: 400 }
       )
     }
@@ -116,6 +123,10 @@ export async function DELETE(
         { status: 401 }
       )
     }
+    
+    // Apply rate limiting
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.announcements, userId)
+    if (rateLimitResponse) return rateLimitResponse
 
     const { id: announcementId } = await params
     const result = await deleteAnnouncement(userId, announcementId)

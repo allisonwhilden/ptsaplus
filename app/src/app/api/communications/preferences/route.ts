@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/supabase-server'
 import { z } from 'zod'
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { logPreferenceChange } from '@/lib/audit-logger'
+import { POSTGRES_ERROR_CODES, isNotFoundError, getSafeErrorInfo } from '@/lib/database-errors'
 
 const preferencesSchema = z.object({
   emailEnabled: z.boolean(),
@@ -32,8 +35,11 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .single()
 
-    if (error && error.code !== 'PGRST116') {
-      throw error
+    // Not found is expected for new users
+    if (error && !isNotFoundError(error)) {
+      const safeError = getSafeErrorInfo(error)
+      console.error('[API] Database error:', safeError)
+      throw new Error(safeError.safe_message)
     }
 
     const preferences = data || {
@@ -77,13 +83,19 @@ export async function PUT(request: NextRequest) {
         { status: 401 }
       )
     }
+    
+    // Apply rate limiting
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.preferences, userId)
+    if (rateLimitResponse) return rateLimitResponse
 
     const body = await request.json()
     const validation = preferencesSchema.safeParse(body)
 
     if (!validation.success) {
+      // Secure error handling - don't expose validation details
+      console.error('[API] Validation error:', validation.error.issues)
       return NextResponse.json(
-        { error: 'Invalid request data', details: validation.error.issues },
+        { error: 'Invalid request data' },
         { status: 400 }
       )
     }
@@ -112,6 +124,9 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) throw error
+
+    // Audit log the preference changes
+    await logPreferenceChange(userId, validation.data, request)
 
     return NextResponse.json({
       preferences: {

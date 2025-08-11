@@ -19,8 +19,8 @@ export interface UpdateAnnouncementInput {
   content?: string
   type?: 'general' | 'urgent' | 'event'
   audience?: 'all' | 'members' | 'board' | 'committee_chairs' | 'teachers'
-  publishedAt?: Date | null
-  expiresAt?: Date | null
+  publishedAt?: Date | null  // Consistent: null means clear the date
+  expiresAt?: Date | null    // Consistent: null means clear the date
   isPinned?: boolean
 }
 
@@ -133,8 +133,12 @@ export async function updateAnnouncement(
     if (input.content !== undefined) updateData.content = input.content
     if (input.type !== undefined) updateData.type = input.type
     if (input.audience !== undefined) updateData.audience = input.audience
-    if (input.publishedAt !== undefined) updateData.published_at = input.publishedAt?.toISOString()
-    if (input.expiresAt !== undefined) updateData.expires_at = input.expiresAt?.toISOString()
+    if (input.publishedAt !== undefined) {
+      updateData.published_at = input.publishedAt ? input.publishedAt.toISOString() : null
+    }
+    if (input.expiresAt !== undefined) {
+      updateData.expires_at = input.expiresAt ? input.expiresAt.toISOString() : null
+    }
     if (input.isPinned !== undefined) updateData.is_pinned = input.isPinned
 
     const { data, error } = await supabase
