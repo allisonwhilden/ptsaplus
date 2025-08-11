@@ -170,5 +170,12 @@ export const RATE_LIMITS = {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 3,       // 3 attempts per user per minute
     maxRequestsPerIP: 5   // 5 attempts per IP per minute
+  },
+  
+  // Read operations (more lenient)
+  readOperations: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 60,      // 60 requests per user per minute
+    maxRequestsPerIP: 100 // 100 requests per IP per minute
   }
 };

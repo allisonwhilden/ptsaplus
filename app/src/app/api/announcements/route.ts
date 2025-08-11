@@ -20,20 +20,28 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth()
     
+    // Apply rate limiting for read operations
+    const rateLimitResponse = await rateLimit(request, RATE_LIMITS.readOperations, userId)
+    if (rateLimitResponse) return rateLimitResponse
+    
     const searchParams = request.nextUrl.searchParams
     const type = searchParams.get('type') as 'general' | 'urgent' | 'event' | undefined
     const audience = searchParams.get('audience') || undefined
     const includeExpired = searchParams.get('includeExpired') === 'true'
     const pinnedOnly = searchParams.get('pinnedOnly') === 'true'
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '50', 10)
 
-    const announcements = await getAnnouncements(userId || undefined, {
+    const result = await getAnnouncements(userId || undefined, {
       type,
       audience,
       includeExpired,
       pinnedOnly,
+      page,
+      limit,
     })
 
-    return NextResponse.json({ announcements })
+    return NextResponse.json(result)
   } catch (error) {
     console.error('[API] Failed to get announcements:', error)
     return NextResponse.json(

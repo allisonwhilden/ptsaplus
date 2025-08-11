@@ -128,7 +128,18 @@ export async function updateAnnouncement(
       return { success: false, error: 'Unauthorized to update this announcement' }
     }
 
-    const updateData: any = {}
+    // Properly typed update data
+    interface AnnouncementUpdateData {
+      title?: string
+      content?: string
+      type?: 'general' | 'urgent' | 'event'
+      audience?: 'all' | 'members' | 'board' | 'committee_chairs' | 'teachers'
+      published_at?: string | null
+      expires_at?: string | null
+      is_pinned?: boolean
+    }
+    
+    const updateData: AnnouncementUpdateData = {}
     if (input.title !== undefined) updateData.title = input.title
     if (input.content !== undefined) updateData.content = input.content
     if (input.type !== undefined) updateData.type = input.type
@@ -229,16 +240,52 @@ export async function getAnnouncements(
     audience?: string
     includeExpired?: boolean
     pinnedOnly?: boolean
+    page?: number
+    limit?: number
   }
-): Promise<AnnouncementData[]> {
+): Promise<{ announcements: AnnouncementData[]; totalCount: number; hasMore: boolean }> {
   try {
     const supabase = await createClient()
+    
+    // Default pagination
+    const page = filters?.page || 1
+    const limit = Math.min(filters?.limit || 50, 100) // Max 100 items per page
+    const offset = (page - 1) * limit
 
+    // First get total count
+    let countQuery = supabase
+      .from('announcements')
+      .select('*', { count: 'exact', head: true })
+      
+    countQuery = countQuery.not('published_at', 'is', null)
+      .lte('published_at', new Date().toISOString())
+
+    if (!filters?.includeExpired) {
+      countQuery = countQuery.or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
+    }
+
+    if (filters?.type) {
+      countQuery = countQuery.eq('type', filters.type)
+    }
+
+    if (filters?.audience) {
+      countQuery = countQuery.eq('audience', filters.audience)
+    }
+
+    if (filters?.pinnedOnly) {
+      countQuery = countQuery.eq('is_pinned', true)
+    }
+
+    const { count } = await countQuery
+    const totalCount = count || 0
+
+    // Now get the actual data with pagination
     let query = supabase
       .from('announcements')
       .select('*')
       .order('is_pinned', { ascending: false })
       .order('published_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     query = query.not('published_at', 'is', null)
       .lte('published_at', new Date().toISOString())
@@ -263,7 +310,7 @@ export async function getAnnouncements(
 
     if (error) throw error
 
-    return (data || []).map(item => ({
+    const announcements = (data || []).map(item => ({
       id: item.id,
       title: item.title,
       content: item.content,
@@ -276,9 +323,19 @@ export async function getAnnouncements(
       createdAt: new Date(item.created_at),
       updatedAt: new Date(item.updated_at || item.created_at),
     }))
+    
+    return {
+      announcements,
+      totalCount,
+      hasMore: offset + limit < totalCount
+    }
   } catch (error) {
     console.error('[Announcements] Failed to get announcements:', error)
-    return []
+    return {
+      announcements: [],
+      totalCount: 0,
+      hasMore: false
+    }
   }
 }
 
@@ -370,6 +427,7 @@ async function sendAnnouncementEmail(
     const userIds = users.map(u => u.id)
 
     const organizationName = process.env.NEXT_PUBLIC_ORGANIZATION_NAME || 'PTSA+'
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ptsaplus.vercel.app'
 
     const actionItems = announcement.type === 'urgent' 
       ? extractActionItems(announcement.content)
@@ -389,9 +447,9 @@ async function sendAnnouncementEmail(
           organizationName,
           actionItems,
           ctaButton: announcement.type === 'event' 
-            ? { text: 'View Event Details', url: `https://ptsaplus.vercel.app/announcements/${announcement.id}` }
+            ? { text: 'View Event Details', url: `${baseUrl}/announcements/${announcement.id}` }
             : undefined,
-          unsubscribeUrl: `https://ptsaplus.vercel.app/unsubscribe?token=${userId}&category=announcements`,
+          unsubscribeUrl: `${baseUrl}/unsubscribe?token=${userId}&category=announcements`,
         }
         
         return AnnouncementEmail(emailProps)
