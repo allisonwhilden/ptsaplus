@@ -25,9 +25,16 @@ This platform provides our PTSA with a dedicated solution for managing operation
   - Data export and deletion rights
   - Field-level encryption for PII
   - Comprehensive audit logging
+- **Email Communications**: Professional email system ✅
+  - Automated welcome emails for new members
+  - Payment confirmation receipts
+  - Event reminders and volunteer shift notifications
+  - Meeting minutes distribution
+  - Board announcements to targeted audiences
+  - Unsubscribe management with granular preferences
 
 ### In Active Development
-- **Email Communications**: Send newsletters and announcements 🔄
+- **Communication UI**: Admin interfaces for announcements and emails 🔄
 - **Financial Dashboard**: View payment history and reports 🔄
 - **AI Assistant**: Help with common questions and tasks 🔄
 
@@ -62,7 +69,8 @@ Project documentation is available in the `/docs` directory:
 - **UI Components**: shadcn/ui with Tailwind CSS v3.4.17 ✅
 - **Authentication**: Clerk (configured and working) ✅
 - **Database**: Supabase (PostgreSQL) with RLS ✅
-- **Payments**: Stripe (integration in progress) 🔄
+- **Payments**: Stripe (integrated and working) ✅
+- **Email Service**: Resend with React Email templates ✅
 - **Hosting**: Vercel (live at https://ptsaplus.vercel.app) ✅
 
 ### Why These Choices?
@@ -83,6 +91,7 @@ Project documentation is available in the `/docs` directory:
 - Supabase account
 - Clerk account
 - Stripe account
+- Resend account (for email service)
 
 ### Quick Start
 
