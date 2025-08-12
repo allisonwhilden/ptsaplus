@@ -1,9 +1,54 @@
 import { getSupabaseServiceClient } from '@/lib/supabase-server'
 import { createCachedQuery, CACHE_DURATIONS, CACHE_TAGS, cacheKeys } from '@/lib/cache'
 
+// Type definitions
+interface MemberStats {
+  total: number
+  active: number
+  pending: number
+  rate: string | number
+}
+
+interface RevenueStats {
+  total: number
+  byType: Record<string, number>
+  count: number
+  average: number
+}
+
+interface Event {
+  id: string
+  title: string
+  description: string | null
+  start_time: string
+  end_time: string | null
+  location: string | null
+  max_capacity: number | null
+  event_rsvps?: { count: number }[]
+}
+
+interface VolunteerStats {
+  totalVolunteers: number
+  recentSignups: any[]
+  upcomingSlots: any[]
+}
+
+interface AdminDashboardData {
+  memberStats: MemberStats
+  revenueStats: RevenueStats
+  events: Event[]
+  volunteerStats: VolunteerStats
+  timestamp: number
+}
+
+interface ChartDataPoint {
+  month: string
+  value: number
+}
+
 // Cached member statistics
 export const getMemberStats = createCachedQuery(
-  async () => {
+  async (): Promise<MemberStats> => {
     const supabase = getSupabaseServiceClient()
     
     const [
@@ -32,7 +77,7 @@ export const getMemberStats = createCachedQuery(
 
 // Cached revenue statistics
 export const getRevenueStats = createCachedQuery(
-  async (period: 'month' | 'quarter' | 'year' = 'month') => {
+  async (period: 'month' | 'quarter' | 'year' = 'month'): Promise<RevenueStats> => {
     const supabase = getSupabaseServiceClient()
     
     const startDate = new Date()
@@ -77,7 +122,7 @@ export const getRevenueStats = createCachedQuery(
 
 // Cached upcoming events
 export const getUpcomingEvents = createCachedQuery(
-  async (limit: number = 10) => {
+  async (limit: number = 10): Promise<Event[]> => {
     const supabase = getSupabaseServiceClient()
     
     const { data: events } = await supabase
@@ -107,7 +152,7 @@ export const getUpcomingEvents = createCachedQuery(
 
 // Cached volunteer statistics
 export const getVolunteerStats = createCachedQuery(
-  async () => {
+  async (): Promise<VolunteerStats> => {
     const supabase = getSupabaseServiceClient()
     
     const [
@@ -151,7 +196,7 @@ export const getVolunteerStats = createCachedQuery(
 
 // Combined dashboard data for admin
 export const getAdminDashboardData = createCachedQuery(
-  async () => {
+  async (): Promise<AdminDashboardData> => {
     const [memberStats, revenueStats, events, volunteerStats] = await Promise.all([
       getMemberStats(),
       getRevenueStats('month'),
@@ -176,7 +221,7 @@ export const getAdminDashboardData = createCachedQuery(
 
 // Chart data with longer cache
 export const getChartData = createCachedQuery(
-  async (type: 'revenue' | 'membership' | 'events') => {
+  async (type: 'revenue' | 'membership' | 'events'): Promise<ChartDataPoint[]> => {
     const supabase = getSupabaseServiceClient()
     
     // Generate last 6 months of data

@@ -111,7 +111,7 @@ export function ProgressiveDataTable({
                     >
                       {column.format 
                         ? column.format(row[column.key])
-                        : row[column.key]
+                        : String(row[column.key] ?? '')
                       }
                     </TableCell>
                   ))}

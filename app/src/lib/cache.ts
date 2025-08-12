@@ -21,8 +21,8 @@ export const CACHE_TAGS = {
   DASHBOARD: 'dashboard',
 } as const
 
-// Dashboard-specific cache wrapper
-export function createCachedQuery<T extends (...args: unknown[]) => Promise<unknown>>(
+// Dashboard-specific cache wrapper with proper type inference
+export function createCachedQuery<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   options: {
     tags: string[]
