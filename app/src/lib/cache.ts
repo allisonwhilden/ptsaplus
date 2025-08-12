@@ -22,7 +22,7 @@ export const CACHE_TAGS = {
 } as const
 
 // Dashboard-specific cache wrapper
-export function createCachedQuery<T extends (...args: any[]) => Promise<any>>(
+export function createCachedQuery<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   options: {
     tags: string[]

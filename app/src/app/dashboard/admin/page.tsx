@@ -13,10 +13,8 @@ import { QuickActions } from '@/components/dashboard/QuickActions'
 import { 
   Users, 
   DollarSign, 
-  Calendar, 
-  TrendingUp,
-  UserCheck,
-  AlertCircle
+  Calendar,
+  UserCheck
 } from 'lucide-react'
 
 export default async function AdminDashboardPage() {

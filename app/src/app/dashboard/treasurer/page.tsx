@@ -13,9 +13,7 @@ import { FinancialProjections } from '@/components/dashboard/FinancialProjection
 import { 
   DollarSign, 
   TrendingUp, 
-  Users, 
   Download,
-  CreditCard,
   AlertTriangle,
   FileText
 } from 'lucide-react'

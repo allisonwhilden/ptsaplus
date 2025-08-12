@@ -16,11 +16,11 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 interface ProgressiveDataTableProps {
   title: string
   description?: string
-  data: any[]
+  data: Record<string, unknown>[]
   columns: {
     key: string
     label: string
-    format?: (value: any) => string
+    format?: (value: unknown) => string
     priority: 'primary' | 'secondary' | 'detail'
   }[]
   initialRows?: number
