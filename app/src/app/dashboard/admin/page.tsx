@@ -1,9 +1,10 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { getSupabaseServiceClient } from '@/lib/supabase-server'
+import { getMemberStats, getRevenueStats, getUpcomingEvents } from '@/lib/dashboard-queries'
 import { MainLayout } from '@/components/layout/main-layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { StatsCard } from '@/components/dashboard/StatsCard'
+import { EnhancedStatsCard } from '@/components/dashboard/EnhancedStatsCard'
 import { RevenueChart } from '@/components/dashboard/RevenueChart'
 import { MembershipTrends } from '@/components/dashboard/MembershipTrends'
 import { EventAnalytics } from '@/components/dashboard/EventAnalytics'
@@ -37,23 +38,53 @@ export default async function AdminDashboardPage() {
     redirect('/dashboard')
   }
 
-  // Fetch aggregate data for admin dashboard
-  const [
-    { count: totalMembers },
-    { count: activeMembers },
-    { data: recentPayments },
-    { count: upcomingEvents },
-    { data: recentMembers }
-  ] = await Promise.all([
-    supabase.from('members').select('*', { count: 'exact', head: true }),
-    supabase.from('members').select('*', { count: 'exact', head: true }).eq('membership_status', 'active'),
-    supabase.from('payments').select('*').eq('status', 'succeeded').order('created_at', { ascending: false }).limit(5),
-    supabase.from('events').select('*', { count: 'exact', head: true }).gte('start_time', new Date().toISOString()),
-    supabase.from('members').select('*').order('created_at', { ascending: false }).limit(5)
+  // Fetch data using cached queries for better performance
+  const [memberStats, revenueStats, upcomingEventsList] = await Promise.all([
+    getMemberStats(),
+    getRevenueStats('month'),
+    getUpcomingEvents(10)
   ])
 
-  // Calculate total revenue
-  const totalRevenue = recentPayments?.reduce((sum, payment) => sum + (payment.amount / 100), 0) || 0
+  // Fetch non-cached recent data
+  const { data: recentMembers } = await supabase
+    .from('members')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  const { data: recentPayments } = await supabase
+    .from('payments')
+    .select('*')
+    .eq('status', 'succeeded')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  // Use cached data
+  const totalMembers = memberStats.total
+  const activeMembers = memberStats.active
+  const totalRevenue = revenueStats.total
+  const upcomingEvents = upcomingEventsList.length
+
+  // Calculate metrics for context
+  const membershipRate = totalMembers ? ((activeMembers || 0) / totalMembers * 100).toFixed(1) : 0
+  const avgRevenue = activeMembers ? (totalRevenue / activeMembers).toFixed(2) : 0
+
+  // Determine status levels
+  const getMembershipStatus = () => {
+    const rate = parseFloat(membershipRate.toString())
+    if (rate >= 80) return 'excellent'
+    if (rate >= 60) return 'good'
+    if (rate >= 40) return 'warning'
+    return 'critical'
+  }
+
+  const getRevenueStatus = () => {
+    const avg = parseFloat(avgRevenue.toString())
+    if (avg >= 50) return 'excellent'
+    if (avg >= 25) return 'good'
+    if (avg >= 15) return 'warning'
+    return 'critical'
+  }
 
   return (
     <MainLayout>
@@ -65,32 +96,71 @@ export default async function AdminDashboardPage() {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatsCard
+          <EnhancedStatsCard
             title="Total Members"
             value={totalMembers || 0}
             icon={<Users className="h-4 w-4" />}
             description="All registered members"
-            trend="+12% from last month"
+            trend={{
+              value: "+12% from last month",
+              direction: "up",
+              isGood: true
+            }}
+            helpText="Total number of families registered in the system, including both active and inactive memberships."
+            benchmark={{
+              value: "250",
+              label: "School average",
+              comparison: totalMembers && totalMembers > 250 ? "above" : "below"
+            }}
           />
-          <StatsCard
+          <EnhancedStatsCard
             title="Active Members"
             value={activeMembers || 0}
             icon={<UserCheck className="h-4 w-4" />}
-            description="Paid memberships"
-            trend="+8% from last month"
+            description={`${membershipRate}% of total members`}
+            trend={{
+              value: "+8% from last month",
+              direction: "up",
+              isGood: true
+            }}
+            helpText="Members who have paid their dues for the current school year. A healthy PTSA typically maintains 60%+ active membership."
+            status={getMembershipStatus()}
+            benchmark={{
+              value: "60%",
+              label: "Target rate",
+              comparison: parseFloat(membershipRate.toString()) >= 60 ? "above" : "below"
+            }}
           />
-          <StatsCard
+          <EnhancedStatsCard
             title="Total Revenue"
             value={`$${totalRevenue.toFixed(2)}`}
             icon={<DollarSign className="h-4 w-4" />}
-            description="This month"
-            trend="+15% from last month"
+            description={`Avg: $${avgRevenue}/member`}
+            trend={{
+              value: "+15% from last month",
+              direction: "up",
+              isGood: true
+            }}
+            helpText="Total funds collected this month from membership dues, donations, and event tickets. This helps fund PTSA programs and activities."
+            status={getRevenueStatus()}
+            benchmark={{
+              value: "$2,500",
+              label: "Monthly goal",
+              comparison: totalRevenue >= 2500 ? "above" : "below"
+            }}
           />
-          <StatsCard
+          <EnhancedStatsCard
             title="Upcoming Events"
             value={upcomingEvents || 0}
             icon={<Calendar className="h-4 w-4" />}
             description="Next 30 days"
+            helpText="Number of scheduled events in the next month. A healthy PTSA typically runs 3-5 events per month during the school year."
+            status={upcomingEvents && upcomingEvents >= 3 ? "good" : "warning"}
+            benchmark={{
+              value: "3-5",
+              label: "Optimal range",
+              comparison: upcomingEvents && upcomingEvents >= 3 && upcomingEvents <= 5 ? "at" : "below"
+            }}
           />
         </div>
 

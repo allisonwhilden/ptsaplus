@@ -9,6 +9,8 @@ import { EventCalendarWidget } from '@/components/dashboard/EventCalendarWidget'
 import { VolunteerMetrics } from '@/components/dashboard/VolunteerMetrics'
 import { MemberEngagement } from '@/components/dashboard/MemberEngagement'
 import { CommitteeActivity } from '@/components/dashboard/CommitteeActivity'
+import { CollapsibleChart } from '@/components/dashboard/CollapsibleChart'
+import { ProgressiveDataTable } from '@/components/dashboard/ProgressiveDataTable'
 import { 
   Calendar,
   Users,
@@ -164,34 +166,66 @@ export default async function BoardDashboardPage() {
           </Card>
         </div>
 
-        {/* Secondary Content Grid */}
+        {/* Secondary Content Grid with Progressive Disclosure */}
         <div className="grid gap-4 lg:grid-cols-2 mb-8">
-          {/* Member Engagement */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Member Engagement</CardTitle>
-              <CardDescription>Participation trends and statistics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MemberEngagement 
-                totalMembers={totalMembers}
-                activeVolunteers={volunteersCount}
-                recentRsvps={recentRsvps?.length || 0}
-              />
-            </CardContent>
-          </Card>
+          {/* Member Engagement with Collapsible Chart */}
+          <CollapsibleChart
+            title="Member Engagement"
+            description="Participation trends and statistics"
+            summary={
+              <div className="flex justify-between items-center">
+                <span>{engagementRate}% volunteer participation rate</span>
+                <span className="text-sm font-medium text-green-600">↑ Trending up</span>
+              </div>
+            }
+            defaultExpanded={false}
+            fullscreenEnabled={true}
+          >
+            <MemberEngagement 
+              totalMembers={totalMembers}
+              activeVolunteers={volunteersCount}
+              recentRsvps={recentRsvps?.length || 0}
+            />
+          </CollapsibleChart>
 
-          {/* Committee Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Committee Activity</CardTitle>
-              <CardDescription>Updates from committee chairs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CommitteeActivity />
-            </CardContent>
-          </Card>
+          {/* Committee Activity with Collapsible View */}
+          <CollapsibleChart
+            title="Committee Activity"
+            description="Updates from committee chairs"
+            summary="5 active committees with 23 ongoing projects"
+            defaultExpanded={false}
+          >
+            <CommitteeActivity />
+          </CollapsibleChart>
         </div>
+
+        {/* Recent RSVPs with Progressive Data Table */}
+        {recentRsvps && recentRsvps.length > 0 && (
+          <ProgressiveDataTable
+            title="Recent Event RSVPs"
+            description="Member responses to upcoming events"
+            data={recentRsvps.map(rsvp => ({
+              memberName: rsvp.member_name || 'Guest',
+              eventTitle: rsvp.events?.title || 'Unknown Event',
+              eventDate: rsvp.events?.start_time ? new Date(rsvp.events.start_time).toLocaleDateString() : 'TBD',
+              guests: rsvp.guest_count || 0,
+              status: rsvp.status,
+              rsvpDate: new Date(rsvp.created_at).toLocaleDateString(),
+              notes: rsvp.notes || '-'
+            }))}
+            columns={[
+              { key: 'memberName', label: 'Member', priority: 'primary' },
+              { key: 'eventTitle', label: 'Event', priority: 'primary' },
+              { key: 'status', label: 'Status', priority: 'primary' },
+              { key: 'guests', label: 'Guests', priority: 'secondary' },
+              { key: 'eventDate', label: 'Event Date', priority: 'secondary' },
+              { key: 'rsvpDate', label: 'RSVP Date', priority: 'detail' },
+              { key: 'notes', label: 'Notes', priority: 'detail' }
+            ]}
+            initialRows={5}
+            incrementBy={10}
+          />
+        )}
 
         {/* Action Items */}
         <Card>
