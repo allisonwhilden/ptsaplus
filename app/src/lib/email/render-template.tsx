@@ -85,10 +85,11 @@ export async function renderEmailTemplate(
         <PaymentConfirmationEmail
           memberName={memberName}
           amount={data.amount || 0}
-          paymentDate={data.paymentDate || new Date().toLocaleDateString()}
-          paymentMethod={data.paymentMethod || 'Credit Card'}
-          receiptNumber={data.receiptNumber || `RCP-${Date.now()}`}
+          paymentDate={data.paymentDate ? new Date(data.paymentDate) : new Date()}
+          receiptUrl={undefined}
+          membershipType={data.membershipType || 'Standard'}
           organizationName={data.organizationName || organizationName}
+          membershipExpiresAt={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)} // 1 year from now
           unsubscribeUrl={data.unsubscribeUrl}
         />
       )
@@ -97,13 +98,15 @@ export async function renderEmailTemplate(
     case 'event_reminder':
       emailComponent = (
         <EventReminderEmail
-          memberName={memberName}
+          recipientName={memberName}
           eventName={data.eventName || 'Upcoming Event'}
-          eventDate={data.eventDate || ''}
+          eventDate={data.eventDate ? new Date(data.eventDate) : new Date()}
           eventTime={data.eventTime || ''}
           eventLocation={data.eventLocation || ''}
-          eventDescription={data.eventDescription || ''}
-          rsvpUrl={data.rsvpUrl || ''}
+          eventDescription={data.eventDescription}
+          rsvpStatus={'maybe'}
+          rsvpUrl={data.rsvpUrl || '#'}
+          directionsUrl={undefined}
           organizationName={data.organizationName || organizationName}
           unsubscribeUrl={data.unsubscribeUrl}
         />
@@ -113,11 +116,14 @@ export async function renderEmailTemplate(
     case 'announcement':
       emailComponent = (
         <AnnouncementEmail
-          memberName={memberName}
           title={data.title || 'Important Announcement'}
           content={data.content || ''}
-          announcementType={data.announcementType || 'general'}
+          type={(data.announcementType || 'general') as 'general' | 'urgent' | 'event'}
+          authorName={'PTSA Board'}
+          authorRole={'Administrator'}
           organizationName={data.organizationName || organizationName}
+          actionItems={undefined}
+          ctaButton={undefined}
           unsubscribeUrl={data.unsubscribeUrl}
         />
       )
@@ -126,14 +132,23 @@ export async function renderEmailTemplate(
     case 'volunteer_reminder':
       emailComponent = (
         <VolunteerReminderEmail
-          memberName={memberName}
-          volunteerRole={data.volunteerRole || 'Volunteer'}
-          shiftDate={data.shiftDate || ''}
-          shiftTime={data.shiftTime || ''}
-          location={data.location || ''}
-          coordinator={data.coordinator || ''}
-          coordinatorPhone={data.coordinatorPhone || ''}
+          volunteerName={memberName}
+          eventName={data.eventName || 'Volunteer Event'}
+          slot={data.volunteerRole || 'Volunteer'}
+          eventDate={data.shiftDate ? new Date(data.shiftDate) : new Date()}
+          eventTime={data.shiftTime || ''}
+          eventLocation={data.location || ''}
+          role={data.volunteerRole || 'Volunteer'}
+          coordinator={{
+            name: data.coordinator || 'Volunteer Coordinator',
+            phone: data.coordinatorPhone || '',
+            email: ''
+          }}
+          whatToBring={undefined}
+          instructions={undefined}
           organizationName={data.organizationName || organizationName}
+          cancelUrl={'#'}
+          directionsUrl={undefined}
           unsubscribeUrl={data.unsubscribeUrl}
         />
       )
@@ -142,13 +157,22 @@ export async function renderEmailTemplate(
     case 'meeting_minutes':
       emailComponent = (
         <MeetingMinutesEmail
-          memberName={memberName}
-          meetingDate={data.meetingDate || new Date().toLocaleDateString()}
-          meetingType={data.meetingType || 'Board Meeting'}
+          meetingDate={data.meetingDate ? new Date(data.meetingDate) : new Date()}
+          meetingTitle={data.meetingType || 'Board Meeting'}
+          attendees={[]} // Would be populated from actual data
           keyDecisions={data.keyDecisions || []}
-          actionItems={data.actionItems || []}
-          nextMeetingDate={data.nextMeetingDate || ''}
+          actionItems={data.actionItems ? 
+            data.actionItems.map(item => ({
+              task: typeof item === 'string' ? item : item,
+              assignee: 'TBD',
+              deadline: ''
+            })) : []
+          }
+          nextMeetingDate={data.nextMeetingDate ? new Date(data.nextMeetingDate) : undefined}
+          minutesUrl={undefined}
+          recordingUrl={undefined}
           organizationName={data.organizationName || organizationName}
+          secretaryName={'PTSA Secretary'}
           unsubscribeUrl={data.unsubscribeUrl}
         />
       )
