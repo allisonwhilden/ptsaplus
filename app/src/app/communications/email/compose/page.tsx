@@ -64,6 +64,9 @@ export default function EmailComposePage() {
   const [members, setMembers] = useState<any[]>([])
   const [selectedMembers, setSelectedMembers] = useState<string[]>([])
   const [templateData, setTemplateData] = useState<any>({})
+  const [recipientCounts, setRecipientCounts] = useState<Record<string, number>>({})  
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
 
   const {
     register,
@@ -86,6 +89,9 @@ export default function EmailComposePage() {
     // Load members if custom audience is selected
     if (selectedAudience === 'custom') {
       loadMembers()
+    } else {
+      // Load recipient counts for other audiences
+      loadRecipientCounts()
     }
   }, [selectedAudience])
 
@@ -117,6 +123,41 @@ export default function EmailComposePage() {
       }
     } catch (error) {
       console.error('Failed to load members:', error)
+    }
+  }
+
+  const loadRecipientCounts = async () => {
+    try {
+      const response = await fetch('/api/members/counts')
+      if (response.ok) {
+        const data = await response.json()
+        setRecipientCounts(data)
+      }
+    } catch (error) {
+      // Fallback to defaults if API fails
+      setRecipientCounts({
+        all: 0,
+        board: 0,
+        committee_chairs: 0,
+        teachers: 0,
+      })
+    }
+  }
+
+  const searchMembers = async (query: string) => {
+    if (query.length < 2) {
+      setSearchResults([])
+      return
+    }
+    
+    try {
+      const response = await fetch(`/api/members/search?q=${encodeURIComponent(query)}`)
+      if (response.ok) {
+        const data = await response.json()
+        setSearchResults(data.members || [])
+      }
+    } catch (error) {
+      console.error('Failed to search members:', error)
     }
   }
 
@@ -167,14 +208,7 @@ export default function EmailComposePage() {
     if (selectedAudience === 'custom') {
       return selectedMembers.length
     }
-    // These would be fetched from the backend in production
-    const counts = {
-      all: 150,
-      board: 8,
-      committee_chairs: 12,
-      teachers: 25,
-    }
-    return counts[selectedAudience as keyof typeof counts] || 0
+    return recipientCounts[selectedAudience] || 0
   }
 
   if (!user) {

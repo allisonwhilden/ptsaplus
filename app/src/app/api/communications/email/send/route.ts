@@ -7,6 +7,7 @@ import { sendEmail } from '@/lib/email/client'
 import { queueEmail } from '@/lib/email/queue'
 import { checkEmailConsent } from '@/lib/email/privacy'
 import { logAuditEvent } from '@/lib/audit-logger'
+import { renderEmailTemplate } from '@/lib/email/render-template'
 
 const sendEmailSchema = z.object({
   template: z.string().min(1),
@@ -118,10 +119,20 @@ export async function POST(request: NextRequest) {
     if (scheduledDate && scheduledDate > new Date()) {
       // Schedule for later
       for (const recipient of consentedRecipients) {
+        // Render the email template with recipient data
+        const { html, text } = await renderEmailTemplate(template, {
+          ...templateData,
+          firstName: recipient.first_name,
+          lastName: recipient.last_name,
+          memberName: `${recipient.first_name} ${recipient.last_name}`,
+          loginEmail: recipient.email,
+        })
+        
         await queueEmail({
           to: recipient.email,
           subject,
-          html: `<p>Email template would be rendered here</p>`,
+          html,
+          text,
           scheduledFor: scheduledDate,
         })
         queuedCount++
@@ -130,10 +141,20 @@ export async function POST(request: NextRequest) {
       // Send immediately
       for (const recipient of consentedRecipients) {
         try {
+          // Render the email template with recipient data
+          const { html, text } = await renderEmailTemplate(template, {
+            ...templateData,
+            firstName: recipient.first_name,
+            lastName: recipient.last_name,
+            memberName: `${recipient.first_name} ${recipient.last_name}`,
+            loginEmail: recipient.email,
+          })
+          
           await sendEmail({
             to: recipient.email,
             subject,
-            html: `<p>Email template would be rendered here</p>`,
+            html,
+            text,
             template,
             userId: recipient.id,
             category: 'announcements',
