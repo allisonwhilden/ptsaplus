@@ -32,6 +32,9 @@ global.IntersectionObserver = class IntersectionObserver {
   }
 }
 
+// Mock scrollIntoView for Radix UI Select components
+Element.prototype.scrollIntoView = jest.fn()
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
