@@ -1,6 +1,40 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
+// Mock TextDecoder/TextEncoder for tests (required for @react-email)
+const { TextDecoder: NodeTextDecoder, TextEncoder: NodeTextEncoder } = require('util')
+global.TextDecoder = global.TextDecoder || NodeTextDecoder
+global.TextEncoder = global.TextEncoder || NodeTextEncoder
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+})
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() {
+    return []
+  }
+}
+
+// Mock scrollIntoView for Radix UI Select components
+Element.prototype.scrollIntoView = jest.fn()
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
@@ -86,6 +120,8 @@ jest.mock('@/lib/rate-limit', () => ({
     eventRead: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
     rsvp: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
     volunteer: { windowMs: 60000, maxRequests: 100, maxRequestsPerIP: 200 },
+    emails: { windowMs: 60000, maxRequests: 3, maxRequestsPerIP: 5 },
+    readOperations: { windowMs: 60000, maxRequests: 60, maxRequestsPerIP: 100 },
   }
 }))
 

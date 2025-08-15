@@ -177,5 +177,12 @@ export const RATE_LIMITS = {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,      // 60 requests per user per minute
     maxRequestsPerIP: 100 // 100 requests per IP per minute
+  },
+  
+  // Email sending operations
+  emails: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 3,       // 3 emails per user per minute
+    maxRequestsPerIP: 5   // 5 emails per IP per minute
   }
 };
